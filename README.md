@@ -2,15 +2,15 @@
 
 A lightweight GUI tool for merging and splitting Nintendo Switch container files.
 
-Uses a streaming pipeline to process files without creating temporary data on disk.
+Processes files using a streaming pipeline without creating temporary data on disk.
 
-<img width="1228" height="961" alt="image" src="https://github.com/user-attachments/assets/d1360006-91b3-42b5-bc69-213b243949b1" />
+<img width="800" height="600" alt="image" src="https://github.com/user-attachments/assets/d1360006-91b3-42b5-bc69-213b243949b1" />
 
 ---
 
 ## Features
 
-### Merge split files
+### Merge split container files
 
 - Combine split container parts into a single file
 - Drag & drop support
@@ -30,7 +30,7 @@ Uses a streaming pipeline to process files without creating temporary data on di
 - NSZ (merge / split, auto-decompressed)
 - XCZ (merge / split, auto-decompressed)
 
-**All operations produce NSP output.**
+All operations produce NSP output.
 
 ---
 
@@ -73,9 +73,15 @@ This tool performs everything in a single step.
 
 ---
 
+## Built With
+
+- LibHac — Nintendo Switch filesystem and container handling  
+- WPF (.NET) — Windows desktop GUI framework
+
+---
+
 ## Technical Notes
 
-- Built with **libhac**
 - Streaming I/O architecture
 - Optimized for large files
 - Lightweight GUI
@@ -84,10 +90,10 @@ This tool performs everything in a single step.
 
 ## Legal Notice
 
-This project does **not** include any encryption keys.  
+This project does not include any encryption keys.  
 Users must provide their own keys if required.
 
-This project is intended for **research and development purposes only**.
+This project is intended for research and development purposes only.
 
 ---
 
