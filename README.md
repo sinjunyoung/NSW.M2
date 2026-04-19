@@ -75,8 +75,10 @@ This tool performs everything in a single step.
 
 ## Built With
 
-- LibHac — Nintendo Switch filesystem and container handling  
-- WPF (.NET) — Windows desktop GUI framework
+- Visual Studio 2022 — Primary development environment
+- .NET 8.0 (LTS) — High-performance cross-platform runtime
+- LibHac — Nintendo Switch filesystem and container handling
+- WPF — Windows desktop GUI framework
 
 ---
 
