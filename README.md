@@ -26,12 +26,25 @@ files.
 
 ## Supported Input Formats
 
-  Input Format   Merge   Split   Output
-  -------------- ------- ------- --------
-  NSP            ✔       ✔       NSP
-  XCI            ✔       ✔       NSP
-  NSZ            ✔       ✔       NSP
-  XCZ            ✔       ✔       NSP
+- **NSP**
+  - Merge: Yes
+  - Split: Yes
+  - Output: NSP
+
+- **XCI**
+  - Merge: Yes
+  - Split: Yes
+  - Output: NSP
+
+- **NSZ**
+  - Merge: Yes
+  - Split: Yes
+  - Output: NSP
+
+- **XCZ**
+  - Merge: Yes
+  - Split: Yes
+  - Output: NSP
 
 **All operations always produce NSP output.**
 
