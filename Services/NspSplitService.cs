@@ -73,20 +73,38 @@ public sealed class NspSplitService(string keysPath)
             var (title, version, cnmt) = GetMetadata(cnmtNcaName, allFiles, keySet);
             if (cnmt == null) return;
 
+            string titleIdHex = cnmt.TitleId.ToString("X16");
             string typeTag = GetTypeTag(cnmt.Type);
             string vValue = !string.IsNullOrWhiteSpace(version) ? version : cnmt.TitleVersion.ToString();
             string versionStr = (typeTag != "DLC") ? $" [v{vValue}]" : "";
 
-            string outName = $"{cachedTitle ?? cnmt.TitleId.ToString("X16")} [{cnmt.TitleId:X16}] ({typeTag}){versionStr}.nsp";
+            string outName = $"{cachedTitle ?? titleIdHex} [{titleIdHex}] ({typeTag}){versionStr}.nsp";
             foreach (var c in Path.GetInvalidFileNameChars()) outName = outName.Replace(c, '_');
 
             var builder = new PartitionFileSystemBuilder();
+
+            var tikName = allFiles.Keys.FirstOrDefault(k =>
+                k.EndsWith(".tik", StringComparison.OrdinalIgnoreCase) &&
+                k.Contains(titleIdHex, StringComparison.OrdinalIgnoreCase));
+
+            if (tikName != null)
+            {
+                builder.AddFile(tikName, allFiles[tikName].AsFile(OpenMode.Read));
+            }
+
+            var certName = allFiles.Keys.FirstOrDefault(k =>
+                k.EndsWith(".cert", StringComparison.OrdinalIgnoreCase) &&
+                k.Contains(titleIdHex, StringComparison.OrdinalIgnoreCase));
+
+            if (certName != null)
+                builder.AddFile(certName, allFiles[certName].AsFile(OpenMode.Read));
+
             builder.AddFile(cnmtNcaName, allFiles[cnmtNcaName].AsFile(OpenMode.Read));
 
             foreach (var record in cnmt.ContentEntries)
             {
                 string targetId = BitConverter.ToString(record.NcaId).Replace("-", "").ToLower();
-                string matchName = allFiles.Keys.FirstOrDefault(k => k.StartsWith(targetId));
+                string matchName = allFiles.Keys.FirstOrDefault(k => k.StartsWith(targetId, StringComparison.OrdinalIgnoreCase));
 
                 if (matchName != null)
                 {
@@ -97,7 +115,9 @@ public sealed class NspSplitService(string keysPath)
             }
 
             WriteNsp(builder, Path.Combine(outputDir, outName), outName, progress, ct);
-            log?.Invoke($"{outName} 분리 완료", LogLevel.Ok);
+
+            string tikStatus = tikName != null ? "Tik O" : "Tik X";
+            log?.Invoke($"{outName} 분리 완료 ({tikStatus})", LogLevel.Ok);
         }
         catch (Exception ex) { log?.Invoke($"분리 실패 ({cnmtNcaName}): {ex.Message}", LogLevel.Error); }
     }
