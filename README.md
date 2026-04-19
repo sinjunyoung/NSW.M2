@@ -1,111 +1,95 @@
 # Switch Container Merger / Splitter (GUI)
 
-A lightweight graphical utility for working with Nintendo Switch
-container formats.
+A lightweight GUI tool for merging and splitting Nintendo Switch container files.
 
-This application provides an easy way to **merge and split container
-files** using a fast streaming workflow that avoids creating temporary
-files.
+Uses a streaming pipeline to process files without creating temporary data on disk.
 
-------------------------------------------------------------------------
+<img width="1228" height="961" alt="image" src="https://github.com/user-attachments/assets/d1360006-91b3-42b5-bc69-213b243949b1" />
+
+---
 
 ## Features
 
-### Merge split container parts
+### Merge split files
 
--   Combine split files into a single container using a simple GUI
--   Drag & drop support
--   Automatic file type detection
+- Combine split container parts into a single file
+- Drag & drop support
+- Automatic format detection
 
-### Split large container files
+### Split container files
 
--   Split container files into smaller parts for storage or transfer
--   User-configurable part size
+- Split large container files into smaller parts
+- Configurable part size
 
-------------------------------------------------------------------------
+---
 
-## Supported Input Formats
+## Supported Formats
 
-- **NSP**
-  - Merge: Yes
-  - Split: Yes
-  - Output: NSP
+- NSP (merge / split)
+- XCI (merge / split)
+- NSZ (merge / split, auto-decompressed)
+- XCZ (merge / split, auto-decompressed)
 
-- **XCI**
-  - Merge: Yes
-  - Split: Yes
-  - Output: NSP
+**All operations produce NSP output.**
 
-- **NSZ**
-  - Merge: Yes
-  - Split: Yes
-  - Output: NSP
-
-- **XCZ**
-  - Merge: Yes
-  - Split: Yes
-  - Output: NSP
-
-**All operations always produce NSP output.**
-
-------------------------------------------------------------------------
+---
 
 ## Automatic Decompression
 
-When compressed formats are used:
+When using compressed formats:
 
--   NSZ files are automatically decompressed\
--   XCZ files are automatically decompressed
+- NSZ files are decompressed automatically
+- XCZ files are decompressed automatically
 
-Decompression happens **during merge or split**, not beforehand.
+Decompression happens during processing.
 
-------------------------------------------------------------------------
+---
 
-## Streaming Processing (No Temporary Files)
+## Streaming Processing
 
-This tool uses a streaming pipeline that:
+Uses a streaming pipeline that:
 
--   Decompresses **while merging or splitting**
--   Does **not create intermediate temporary files**
--   Minimizes disk usage
--   Speeds up processing
+- Processes data during merge or split
+- Avoids temporary files
+- Reduces disk usage
+- Improves performance
 
-Traditional workflow avoided:
+### Traditional workflow
 
-1.  Decompress NSZ/XCZ\
-2.  Create temporary NSP\
-3.  Merge or split
+1. Decompress NSZ/XCZ
+2. Create temporary NSP
+3. Merge or split
 
-This application performs everything **in one step**.
+This tool performs everything in a single step.
 
-------------------------------------------------------------------------
+---
 
-## Designed For
+## Use Cases
 
--   Developers working with Switch container formats\
--   Researchers and file format enthusiasts\
--   Low disk space environments\
--   Automation and archival workflows
+- Working with split NSP/XCI files
+- Handling compressed NSZ/XCZ containers
+- Processing very large files
+- Automation workflows
 
-------------------------------------------------------------------------
+---
 
 ## Technical Notes
 
--   Built with **libhac**
--   Streaming I/O architecture
--   Optimized for very large files
--   Lightweight and simple GUI
+- Built with **libhac**
+- Streaming I/O architecture
+- Optimized for large files
+- Lightweight GUI
 
-------------------------------------------------------------------------
+---
 
 ## Legal Notice
 
-This project does **not** include any encryption keys.\
-Users must supply their own keys if required.
+This project does **not** include any encryption keys.  
+Users must provide their own keys if required.
 
-This project is provided for **research and development purposes only**.
+This project is intended for **research and development purposes only**.
 
-------------------------------------------------------------------------
+---
 
 ## License
 
