@@ -6,6 +6,7 @@ using System.IO;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using Res = NSW.M2.Properties.Resources;
 
 namespace NSW.Core.UI
 {
@@ -39,8 +40,8 @@ namespace NSW.Core.UI
         {
             var dlg = new OpenFileDialog
             {
-                Title = "게임 파일 선택",
-                Filter = "Switch 파일 (*.nsp;*.xci;*.nsz;*.xcz)|*.nsp;*.xci;*.nsz;*.xcz|모든 파일|*.*",
+                Title = Res.Dialog_SelectGameFile,
+                Filter = $"{Res.Filter_SwitchFiles} (*.nsp;*.xci;*.nsz;*.xcz)|*.nsp;*.xci;*.nsz;*.xcz|{Res.Filter_AllFiles}|*.*",
                 Multiselect = true
             };
             if (dlg.ShowDialog() == true) AddFiles(dlg.FileNames);
@@ -87,7 +88,7 @@ namespace NSW.Core.UI
                 if (ext != ".nsp" && ext != ".xci" && ext != ".nsz" && ext != ".xcz") continue;
                 if (GameFiles.Any(f => f.FilePath.Equals(path, StringComparison.OrdinalIgnoreCase))) continue;
 
-                var vm = new GameFile(path) { FileType = "분석중..." };
+                var vm = new GameFile(path) { FileType = Res.Status_Analyzing };
                 GameFiles.Add(vm);
 
                 string capturedPath = path;

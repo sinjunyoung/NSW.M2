@@ -1,4 +1,5 @@
 ﻿using System.Windows;
+using Res = NSW.M2.Properties.Resources;
 
 namespace NSW.Core.UI;
 
@@ -6,21 +7,21 @@ public class MessageBoxHelper
 {
     public static void ShowInfo(string msg)
     {
-        MessageBox.Show(msg, "알림", MessageBoxButton.OK, MessageBoxImage.Information);
+        MessageBox.Show(msg, Res.Msg_Title_Info, MessageBoxButton.OK, MessageBoxImage.Information);
     }
 
     public static void ShowWarning(string msg)
     {
-        MessageBox.Show(msg, "경고", MessageBoxButton.OK, MessageBoxImage.Warning);
+        MessageBox.Show(msg, Res.Msg_Title_Warning, MessageBoxButton.OK, MessageBoxImage.Warning);
     }
 
     public static void ShowError(string msg)
     {
-        MessageBox.Show(msg, "오류", MessageBoxButton.OK, MessageBoxImage.Error);
+        MessageBox.Show(msg, Res.Msg_Title_Error, MessageBoxButton.OK, MessageBoxImage.Error);
     }
 
     public static bool ShowQuestion(string msg)
     {
-        return MessageBox.Show(msg, "확인", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes;
+        return MessageBox.Show(msg, Res.Msg_Title_Question, MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes;
     }
 }

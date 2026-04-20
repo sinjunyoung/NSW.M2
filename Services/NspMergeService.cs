@@ -1,16 +1,20 @@
-﻿using System.IO;
-using LibHac.Common;
+﻿using LibHac.Common;
 using LibHac.Common.Keys;
 using LibHac.Fs;
 using LibHac.Fs.Fsa;
 using LibHac.FsSystem;
+using LibHac.Ncm;
+using LibHac.NSZ;
 using LibHac.Tools.Fs;
 using LibHac.Tools.FsSystem;
 using LibHac.Tools.FsSystem.NcaUtils;
-using LibHac.NSZ;
+using NSW.Core;
 using NSW.Core.Enums;
+using NSW.Core.Models;
 using NSW.Core.Services;
+using System.IO;
 using Path = System.IO.Path;
+using Res = NSW.M2.Properties.Resources;
 
 namespace NSW.M2.Services;
 
@@ -30,16 +34,16 @@ public sealed class NspMergeService(string keysPath)
 
         try
         {
-            log?.Invoke("━━ 메타데이터 통합 분석 중... ━━", LogLevel.Info);
+            log?.Invoke(Res.Log_AnalyzeMetadata, LogLevel.Info);
             var allPaths = new List<string>();
             if (!string.IsNullOrEmpty(req.UpdateFilePath)) allPaths.Add(req.UpdateFilePath);
             foreach (var p in req.DlcFilePaths) if (!allPaths.Contains(p)) allPaths.Add(p);
             if (!allPaths.Contains(req.BaseFilePath)) allPaths.Add(req.BaseFilePath);
 
-            var meta = Utils.ExtractAggregateMetadata(libHacKeySet, allPaths, req.UpdateFilePath);
-            log?.Invoke($"최종 ID: [{meta.TitleId}] 버전: {meta.DisplayVersion}", LogLevel.Ok);
+            var meta = ExtractFinalMetadata(libHacKeySet, allPaths);
 
-            log?.Invoke("━━ Super NSP 병합 시작 ━━", LogLevel.Info);
+            log?.Invoke(string.Format(Res.Log_FinalId, meta.TitleId, meta.DisplayVersion), LogLevel.Ok);
+            log?.Invoke(Res.Log_MergeStart, LogLevel.Info);
 
             foreach (var path in allPaths)
             {
@@ -100,7 +104,7 @@ public sealed class NspMergeService(string keysPath)
                                 disposables.Add(fsTemp);
                                 tempFiles.Add(tempPath);
                                 finalName = Path.ChangeExtension(entry.Name, ".ncz");
-                                log?.Invoke($"  [압축 완료] {finalName}", LogLevel.Ok);
+                                log?.Invoke(string.Format(Res.Log_CompressionDone, finalName), LogLevel.Ok);
                             }
                         }
 
@@ -118,10 +122,9 @@ public sealed class NspMergeService(string keysPath)
                 nspStorage.GetSize(out long totalSize).ThrowIfFailure();
                 using var nspStream = nspStorage.AsStream();
 
-                byte[] buffer = new byte[1024 * 1024];
+                byte[] buffer = new byte[0x800000];
                 long totalRead = 0;
 
-                // 헬퍼: 오프셋 예외 방지 루프
                 while (totalRead < totalSize)
                 {
                     ct.ThrowIfCancellationRequested();
@@ -131,18 +134,49 @@ public sealed class NspMergeService(string keysPath)
 
                     fout.Write(buffer, 0, read);
                     totalRead += read;
-                    progress?.Report(((int)((double)totalRead / totalSize * 100), finalFileName));
+
+                    var (pct, label, _, _) = Utils.CalculateProgress(totalRead, totalSize, finalFileName);
+                    progress?.Report((pct, label));
                 }
                 fout.Flush();
             }
 
-            log?.Invoke($"병합 완료: {finalFileName}", LogLevel.Ok);
+            log?.Invoke(string.Format(Res.Log_MergeComplete, finalFileName), LogLevel.Ok);
             return finalPath;
+        }
+        catch (Exception ex)
+        {
+            log?.Invoke(string.Format(Res.Log_Error, ex.Message), LogLevel.Error);
+            throw;
         }
         finally
         {
             for (int i = disposables.Count - 1; i >= 0; i--) disposables[i]?.Dispose();
             foreach (var temp in tempFiles) if (File.Exists(temp)) try { File.Delete(temp); } catch { }
         }
+    }
+
+    private static MetadataResult ExtractFinalMetadata(KeySet ks, List<string> paths)
+    {
+        var allMetas = new List<MetadataResult>();
+
+        foreach (var path in paths)
+        {
+            var results = Utils.GetMetadataFromContainer(ks, path);
+            allMetas.AddRange(results);
+        }
+
+        var uniqueMetas = allMetas
+            .GroupBy(m => new { m.TitleId, m.TitleVersion, m.Type })
+            .Select(g => g.First())
+            .ToList();
+
+        if (uniqueMetas.Count == 0) return new MetadataResult(string.Empty, 0, "1.0.0", string.Empty, string.Empty, 0, ContentMetaType.Application);
+
+        int uniqueDlcCount = uniqueMetas.Count(m => m.Type == ContentMetaType.AddOnContent);
+        var latestUpdate = uniqueMetas.OrderByDescending(m => m.TitleVersion).First();
+        var baseGame = uniqueMetas.FirstOrDefault(m => m.Type == ContentMetaType.Application) ?? uniqueMetas.First();
+
+        return new MetadataResult(baseGame.TitleId, latestUpdate.TitleVersion, latestUpdate.DisplayVersion, baseGame.KrTitle, baseGame.EnTitle, uniqueDlcCount, ContentMetaType.Application);
     }
 }

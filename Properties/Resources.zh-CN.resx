@@ -1,0 +1,118 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+
+  <data name="Main_Title"><value>NSW 合并工具</value></data>
+  <data name="Label_OutputPath"><value>输出文件夹</value></data>
+  <data name="Hint_SelectOutput"><value>请选择输出文件夹。</value></data>
+  <data name="ToolTip_BrowseOutput"><value>选择输出文件夹</value></data>
+  <data name="Button_MergeStart"><value>开始合并</value></data>
+  <data name="Button_SplitStart"><value>开始拆分</value></data>
+  <data name="Status_Processing"><value>处理中...</value></data>
+  <data name="Hint_DragAndDrop"><value>将文件拖放到此处（NSP, NSZ, XCI, XCZ）</value></data>
+  <data name="Header_Type"><value>类型</value></data>
+  <data name="Header_FileName"><value>文件名</value></data>
+  <data name="Header_FilePath"><value>路径</value></data>
+  <data name="ToolTip_AddFile"><value>添加文件</value></data>
+  <data name="ToolTip_RemoveSelected"><value>删除选中项</value></data>
+  <data name="ToolTip_RemoveAll"><value>全部删除</value></data>
+  <data name="Dialog_SelectGameFile"><value>选择游戏文件</value></data>
+  <data name="Filter_SwitchFiles"><value>Switch 文件</value></data>
+  <data name="Filter_AllFiles"><value>所有文件</value></data>
+  <data name="Status_Analyzing"><value>解析中...</value></data>
+  <data name="Msg_Title_Info"><value>信息</value></data>
+  <data name="Msg_Title_Warning"><value>警告</value></data>
+  <data name="Msg_Title_Error"><value>错误</value></data>
+  <data name="Msg_Title_Question"><value>确认</value></data>
+
+  <data name="Log_AnalyzeMetadata"><value>━━ 正在解析元数据... ━━</value></data>
+  <data name="Log_FinalId"><value>最终ID: [{0}] 版本: {1}</value></data>
+  <data name="Log_MergeStart"><value>━━ 开始合并 Super NSP ━━</value></data>
+  <data name="Log_CompressionDone"><value>  [压缩完成] {0}</value></data>
+  <data name="Log_MergeComplete"><value>合并完成: {0}</value></data>
+  <data name="Log_Error"><value>错误: {0}</value></data>
+  <data name="Log_SplitNoTarget"><value>已是单一内容或没有可拆分的目标。</value></data>
+  <data name="Log_SplitComplete"><value>{0} 拆分完成 ({1})</value></data>
+  <data name="Log_SplitFailed"><value>拆分失败 (ID: {0}): {1}</value></data>
+  <data name="Log_WriteNspFailed"><value>写入 NSP 失败: {0}</value></data>
+
+  <data name="Status_Tik_O"><value>有 Ticket</value></data>
+  <data name="Status_Tik_X"><value>无 Ticket</value></data>
+
+  <data name="Main_SelectFolder"><value>选择输出文件夹</value></data>
+  <data name="Main_Log_Elapsed"><value>耗时: {0}</value></data>
+
+  <data name="Main_Log_AllComplete">
+    <value>✓ 所有任务已完成。总耗时: {0}</value>
+  </data>
+
+  <data name="Main_Msg_Done">
+    <value>完成！
+{0}</value>
+  </data>
+
+  <data name="Main_Err_NoBase"><value>请添加包含基础游戏的文件。</value></data>
+  <data name="Main_Err_NoOutput"><value>请设置输出文件夹。</value></data>
+  <data name="Main_Err_NoFiles"><value>请添加要拆分的文件。</value></data>
+
+  <data name="Main_Log_SplitStart">
+    <value>━━ 开始拆分解析: {0} ━━</value>
+  </data>
+
+  <data name="Main_Log_AllSplitDone">
+    <value>✓ 所有拆分任务已完成！总耗时: {0}</value>
+  </data>
+
+  <data name="Main_Msg_SplitDone"><value>拆分完成。</value></data>
+  <data name="Button_Cancel"><value>取消</value></data>
+</root>

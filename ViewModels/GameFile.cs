@@ -7,7 +7,7 @@ namespace NSW.Core.ViewModels;
 
 public class GameFile(string filePath) : INotifyPropertyChanged
 {
-    private string _fileType = "분석중...";
+    private string _fileType = NSW.M2.Properties.Resources.Status_Analyzing;
 
     public string FilePath { get; } = filePath;
 

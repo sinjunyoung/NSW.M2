@@ -1,0 +1,109 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+
+  <data name="Main_Title"><value>Инструмент объединения NSW</value></data>
+  <data name="Label_OutputPath"><value>Папка вывода</value></data>
+  <data name="Hint_SelectOutput"><value>Выберите папку вывода...</value></data>
+  <data name="ToolTip_BrowseOutput"><value>Обзор папки вывода</value></data>
+  <data name="Button_MergeStart"><value>Начать объединение</value></data>
+  <data name="Button_SplitStart"><value>Начать разделение</value></data>
+  <data name="Status_Processing"><value>Обработка...</value></data>
+  <data name="Hint_DragAndDrop"><value>Перетащите файлы NSP, NSZ, XCI, XCZ сюда</value></data>
+  <data name="Header_Type"><value>Тип</value></data>
+  <data name="Header_FileName"><value>Имя файла</value></data>
+  <data name="Header_FilePath"><value>Путь</value></data>
+  <data name="ToolTip_AddFile"><value>Добавить файл</value></data>
+  <data name="ToolTip_RemoveSelected"><value>Удалить выбранные</value></data>
+  <data name="ToolTip_RemoveAll"><value>Удалить всё</value></data>
+  <data name="Dialog_SelectGameFile"><value>Выберите файлы игры</value></data>
+  <data name="Filter_SwitchFiles"><value>Файлы Switch</value></data>
+  <data name="Filter_AllFiles"><value>Все файлы</value></data>
+  <data name="Status_Analyzing"><value>Анализ...</value></data>
+  <data name="Msg_Title_Info"><value>Информация</value></data>
+  <data name="Msg_Title_Warning"><value>Предупреждение</value></data>
+  <data name="Msg_Title_Error"><value>Ошибка</value></data>
+  <data name="Msg_Title_Question"><value>Подтверждение</value></data>
+
+  <data name="Log_AnalyzeMetadata"><value>━━ Анализ метаданных... ━━</value></data>
+  <data name="Log_FinalId"><value>Итоговый ID: [{0}] Версия: {1}</value></data>
+  <data name="Log_MergeStart"><value>━━ Запуск объединения Super NSP ━━</value></data>
+  <data name="Log_CompressionDone"><value>  [Сжатие завершено] {0}</value></data>
+  <data name="Log_MergeComplete"><value>Объединение завершено: {0}</value></data>
+  <data name="Log_Error"><value>Произошла ошибка: {0}</value></data>
+  <data name="Log_SplitNoTarget"><value>Контент уже единый или нет целей для разделения.</value></data>
+  <data name="Log_SplitComplete"><value>Разделение {0} завершено ({1})</value></data>
+  <data name="Log_SplitFailed"><value>Ошибка разделения (ID: {0}): {1}</value></data>
+  <data name="Log_WriteNspFailed"><value>Ошибка записи NSP: {0}</value></data>
+
+  <data name="Status_Tik_O"><value>Tik присутствует</value></data>
+  <data name="Status_Tik_X"><value>Tik отсутствует</value></data>
+
+  <data name="Main_SelectFolder"><value>Выберите рабочую папку</value></data>
+  <data name="Main_Log_Elapsed"><value>Прошло времени: {0}</value></data>
+  <data name="Main_Log_AllComplete"><value>
+✓ Все задачи завершены. Общее время: {0}</value></data>
+  <data name="Main_Msg_Done"><value>Готово!
+{0}</value></data>
+
+  <data name="Main_Err_NoBase"><value>Добавьте файл с базовой игрой.</value></data>
+  <data name="Main_Err_NoOutput"><value>Укажите рабочую папку.</value></data>
+  <data name="Main_Err_NoFiles"><value>Добавьте файлы в список для разделения.</value></data>
+
+  <data name="Main_Log_SplitStart"><value>
+━━ Запуск анализа разделения: {0} ━━</value></data>
+  <data name="Main_Log_AllSplitDone"><value>
+✓ Все разделения завершены! Общее время: {0}</value></data>
+  <data name="Main_Msg_SplitDone"><value>Разделение завершено.</value></data>
+
+  <data name="Button_Cancel"><value>Отмена</value></data>
+</root>

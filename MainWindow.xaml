@@ -6,8 +6,9 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:core="clr-namespace:NSW.Core.UI"
+    xmlns:prop="clr-namespace:NSW.M2.Properties"
     mc:Ignorable="d"
-    Title="NSW Merge Tool"
+    Title="{x:Static prop:Resources.Main_Title}"
     Width="960" Height="720"
     MinWidth="600" MinHeight="600"
     WindowStartupLocation="CenterScreen"
@@ -94,14 +95,15 @@
             <Grid Grid.Row="1" Margin="0,0,0,16">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="20"/>
-                    <ColumnDefinition Width="70"/>
+                    <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
                 <ui:SymbolIcon Grid.Column="0" Symbol="Save24" Margin="0,0,8,0"
                                 Foreground="{DynamicResource TextFillColorSecondaryBrush}"/>
-                <TextBlock Grid.Column="1" Text="출력 경로"
+                <TextBlock Grid.Column="1" Text="{x:Static prop:Resources.Label_OutputPath}"
                            FontSize="12" FontWeight="SemiBold"
+                           Margin="0,0,12,0"
                            Foreground="{DynamicResource TextFillColorPrimaryBrush}"
                            VerticalAlignment="Center"/>
                 <Border Grid.Column="2" Margin="0,0,8,0"
@@ -119,7 +121,7 @@
                                  Padding="10,0"
                                  Height="36"/>
                         <TextBlock x:Name="outputHint"
-                                   Text="출력 폴더를 선택하세요"
+                                   Text="{x:Static prop:Resources.Hint_SelectOutput}"                                   
                                    Foreground="#50FFFFFF"
                                    FontSize="11"
                                    VerticalAlignment="Center"
@@ -132,7 +134,7 @@
                            Appearance="Secondary"
                            Width="36" Height="36"
                            Padding="0"
-                           ToolTip="출력 폴더 선택"
+                           ToolTip="{x:Static prop:Resources.ToolTip_BrowseOutput}"
                            Click="BtnBrowseOutput_Click">
                     <ui:SymbolIcon Symbol="FolderOpen24" FontSize="18"/>
                 </ui:Button>
@@ -147,24 +149,22 @@
                 </Grid.ColumnDefinitions>
 
                 <ui:Button Grid.Column="0"
-               x:Name="btnMergeStart"
-               Content="병합 시작"
-               Appearance="Primary"
-               HorizontalAlignment="Stretch"
-               HorizontalContentAlignment="Center"
-               Height="44"
-               FontSize="12" FontWeight="SemiBold"
-               Click="BtnMergeStart_Click"/>
+                           x:Name="btnMergeStart"
+                           Content="{x:Static prop:Resources.Button_MergeStart}"
+                           HorizontalAlignment="Stretch"
+                           HorizontalContentAlignment="Center"
+                           Height="44"
+                           FontSize="12" FontWeight="SemiBold"
+                           Click="BtnMergeStart_Click"/>
 
                 <ui:Button Grid.Column="2"
-               x:Name="btnSplitStart"
-               Content="분리 시작"
-               Appearance="Secondary"
-               HorizontalAlignment="Stretch"
-               HorizontalContentAlignment="Center"
-               Height="44"
-               FontSize="12" FontWeight="SemiBold"
-               Click="BtnSplitStart_Click"/>
+                           x:Name="btnSplitStart"
+                           Content="{x:Static prop:Resources.Button_SplitStart}"
+                           HorizontalAlignment="Stretch"
+                           HorizontalContentAlignment="Center"
+                           Height="44"
+                           FontSize="12" FontWeight="SemiBold"
+                           Click="BtnSplitStart_Click"/>
             </Grid>
 
             <!-- 진행바 -->
@@ -181,7 +181,8 @@
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
                     <TextBlock x:Name="progressLabel"
-                               Grid.Column="0" Text="처리 중..."
+                               Grid.Column="0" 
+                               Text="{x:Static prop:Resources.Status_Processing}"
                                FontSize="11"
                                Foreground="{DynamicResource TextFillColorSecondaryBrush}"/>
                     <TextBlock x:Name="progressTime"

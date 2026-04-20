@@ -1,34 +1,41 @@
-﻿using LibHac;
-using LibHac.Common;
+﻿using LibHac.Common;
 using LibHac.Common.Keys;
 using LibHac.Fs;
 using LibHac.Fs.Fsa;
 using LibHac.FsSystem;
 using LibHac.Ncm;
-using LibHac.Ns;
 using LibHac.Tools.Fs;
 using LibHac.Tools.FsSystem;
 using LibHac.Tools.FsSystem.NcaUtils;
 using LibHac.Tools.Ncm;
+using NSW.Core;
 using NSW.Core.Enums;
+using NSW.Core.Models;
 using System.IO;
-using System.Runtime.InteropServices;
-using static LibHac.Ns.ApplicationControlProperty;
 using Path = System.IO.Path;
+using Res = NSW.M2.Properties.Resources;
 
 namespace NSW.M2.Services;
 
 public sealed class NspSplitService(string keysPath)
 {
-    public void Split(string sourceNspPath, string outputDir, IProgress<(int pct, string label)> progress, Action<string, LogLevel> log, CancellationToken ct = default)
+    public int Split(string sourceNspPath, string outputDir, IProgress<(int pct, string label)> progress, Action<string, LogLevel> log, CancellationToken ct = default)
     {
         var keySet = ExternalKeyReader.ReadKeyFile(keysPath);
+
+        var allMetas = Utils.GetMetadataFromContainer(keySet, sourceNspPath);
+
+        if (allMetas.Count <= 1)
+        {
+            log?.Invoke(Res.Log_SplitNoTarget, LogLevel.Info);
+            return 0;
+        }
+
         using var storage = new LocalStorage(sourceNspPath, FileAccess.Read);
         var fs = NspHelper.OpenFileSystem(sourceNspPath, storage, keySet);
-
         var allFiles = new Dictionary<string, IStorage>();
         var disposables = new List<IDisposable>();
-        string cachedGameTitle = null;
+        int successCount = 0;
 
         try
         {
@@ -36,70 +43,59 @@ public sealed class NspSplitService(string keysPath)
             {
                 var file = new UniqueRef<IFile>();
                 if (fs.OpenFile(ref file.Ref, entry.FullPath.ToU8Span(), OpenMode.Read).IsFailure()) continue;
-
                 IFile rawFile = file.Release();
                 disposables.Add(rawFile);
-
                 allFiles.Add(entry.Name, rawFile.AsStream().AsStorage());
             }
 
-            var cnmtNcas = allFiles.Keys.Where(k => k.EndsWith(".cnmt.nca")).ToList();
+            string cachedBaseTitle = allMetas.FirstOrDefault(m => m.Type == ContentMetaType.Application)?.KrTitle
+                                     ?? allMetas.FirstOrDefault()?.KrTitle;
 
-            if (cnmtNcas.Count <= 1)
-            {
-                log?.Invoke("이미 단일 콘텐츠이거나 분리할 대상이 없습니다. 작업을 중단합니다.", LogLevel.Info);
-                return;
-            }
-
-            foreach (var name in cnmtNcas)
-            {
-                var (title, _, _) = GetMetadata(name, allFiles, keySet);
-                if (!string.IsNullOrWhiteSpace(title)) { cachedGameTitle = title; break; }
-            }
-
-            foreach (var cnmtNcaName in cnmtNcas)
+            foreach (var meta in allMetas)
             {
                 ct.ThrowIfCancellationRequested();
-                ProcessCnmt(cnmtNcaName, allFiles, keySet, cachedGameTitle, outputDir, progress, log, ct);
+                if (ProcessSplitItem(meta, allFiles, keySet, cachedBaseTitle, outputDir, progress, log, ct))
+                    successCount++;
             }
         }
         finally { foreach (var d in disposables) d.Dispose(); }
+
+        return successCount;
     }
 
-    private static void ProcessCnmt(string cnmtNcaName, Dictionary<string, IStorage> allFiles, KeySet keySet, string cachedTitle, string outputDir, IProgress<(int pct, string label)> progress, Action<string, LogLevel> log, CancellationToken ct)
+    private static bool ProcessSplitItem(MetadataResult meta, Dictionary<string, IStorage> allFiles, KeySet keySet, string baseTitle, string outputDir, IProgress<(int pct, string label)> progress, Action<string, LogLevel> log, CancellationToken ct)
     {
         try
         {
-            var (title, version, cnmt) = GetMetadata(cnmtNcaName, allFiles, keySet);
-            if (cnmt == null) return;
+            string typeTag = meta.GetTypeTag();
+            string displayVer = meta.GetEffectiveDisplayVersion();
+            string versionPart = (typeTag != "DLC") ? $" [v{displayVer}]" : "";
+            string outName = $"{baseTitle} [{meta.TitleId}] ({typeTag}){versionPart}.nsp";
 
-            string titleIdHex = cnmt.TitleId.ToString("X16");
-            string typeTag = GetTypeTag(cnmt.Type);
-            string vValue = !string.IsNullOrWhiteSpace(version) ? version : cnmt.TitleVersion.ToString();
-            string versionStr = (typeTag != "DLC") ? $" [v{vValue}]" : "";
-
-            string outName = $"{cachedTitle ?? titleIdHex} [{titleIdHex}] ({typeTag}){versionStr}.nsp";
-            foreach (var c in Path.GetInvalidFileNameChars()) outName = outName.Replace(c, '_');
+            foreach (var c in Path.GetInvalidFileNameChars())
+                outName = outName.Replace(c, '_');
 
             var builder = new PartitionFileSystemBuilder();
+            string titleIdHex = meta.TitleId.ToUpper();
 
-            var tikName = allFiles.Keys.FirstOrDefault(k =>
-                k.EndsWith(".tik", StringComparison.OrdinalIgnoreCase) &&
-                k.Contains(titleIdHex, StringComparison.OrdinalIgnoreCase));
+            var tikName = allFiles.Keys.FirstOrDefault(k => k.EndsWith(".tik") && k.Contains(titleIdHex, StringComparison.OrdinalIgnoreCase));
+            if (tikName != null) builder.AddFile(tikName, allFiles[tikName].AsFile(OpenMode.Read));
 
-            if (tikName != null)
-            {
-                builder.AddFile(tikName, allFiles[tikName].AsFile(OpenMode.Read));
-            }
+            var certName = allFiles.Keys.FirstOrDefault(k => k.EndsWith(".cert") && k.Contains(titleIdHex, StringComparison.OrdinalIgnoreCase));
+            if (certName != null) builder.AddFile(certName, allFiles[certName].AsFile(OpenMode.Read));
 
-            var certName = allFiles.Keys.FirstOrDefault(k =>
-                k.EndsWith(".cert", StringComparison.OrdinalIgnoreCase) &&
-                k.Contains(titleIdHex, StringComparison.OrdinalIgnoreCase));
-
-            if (certName != null)
-                builder.AddFile(certName, allFiles[certName].AsFile(OpenMode.Read));
-
+            if (!allFiles.ContainsKey(meta.FileName)) return false;
+            string cnmtNcaName = meta.FileName;
             builder.AddFile(cnmtNcaName, allFiles[cnmtNcaName].AsFile(OpenMode.Read));
+
+            using var ncaStorage = new FileStorage(allFiles[cnmtNcaName].AsFile(OpenMode.Read));
+            var nca = new Nca(keySet, ncaStorage);
+            using var cnmtFs = nca.OpenFileSystem(NcaSectionType.Data, IntegrityCheckLevel.None);
+            var entry = cnmtFs.EnumerateEntries("/", "*.cnmt").First();
+
+            using var cFile = new UniqueRef<IFile>();
+            cnmtFs.OpenFile(ref cFile.Ref, entry.FullPath.ToU8Span(), OpenMode.Read).ThrowIfFailure();
+            var cnmt = new Cnmt(cFile.Get.AsStream());
 
             foreach (var record in cnmt.ContentEntries)
             {
@@ -116,52 +112,16 @@ public sealed class NspSplitService(string keysPath)
 
             WriteNsp(builder, Path.Combine(outputDir, outName), outName, progress, ct);
 
-            string tikStatus = tikName != null ? "Tik O" : "Tik X";
-            log?.Invoke($"{outName} 분리 완료 ({tikStatus})", LogLevel.Ok);
-        }
-        catch (Exception ex) { log?.Invoke($"분리 실패 ({cnmtNcaName}): {ex.Message}", LogLevel.Error); }
-    }
+            string tikStatus = tikName != null ? Res.Status_Tik_O : Res.Status_Tik_X;
+            log?.Invoke(string.Format(Res.Log_SplitComplete, outName, tikStatus), LogLevel.Ok);
 
-    private static (string Title, string Version, Cnmt Cnmt) GetMetadata(string cnmtNcaName, Dictionary<string, IStorage> allFiles, KeySet keySet)
-    {
-        try
+            return true;
+        }
+        catch (Exception ex)
         {
-            using var ncaStorage = new FileStorage(allFiles[cnmtNcaName].AsFile(OpenMode.Read));
-            var nca = new Nca(keySet, ncaStorage);
-            using var cnmtFs = nca.OpenFileSystem(NcaSectionType.Data, IntegrityCheckLevel.None);
-            var entry = cnmtFs.EnumerateEntries("/", "*.cnmt").FirstOrDefault();
-            if (entry == null) return (null, null, null);
-
-            using var cFile = new UniqueRef<IFile>();
-            cnmtFs.OpenFile(ref cFile.Ref, entry.FullPath.ToU8Span(), OpenMode.Read).ThrowIfFailure();
-            var cnmt = new Cnmt(cFile.Get.AsStream());
-
-            var ctrlRecord = cnmt.ContentEntries.FirstOrDefault(x => x.Type == LibHac.Ncm.ContentType.Control);
-            if (ctrlRecord == null) return (null, null, cnmt);
-
-            string ctrlId = BitConverter.ToString(ctrlRecord.NcaId).Replace("-", "").ToLower();
-            string ctrlFileName = allFiles.Keys.FirstOrDefault(k => k.StartsWith(ctrlId));
-            if (ctrlFileName == null) return (null, null, cnmt);
-
-            using var cs = new FileStorage(allFiles[ctrlFileName].AsFile(OpenMode.Read));
-            var cNca = new Nca(keySet, cs);
-            using var ctrlFs = cNca.OpenFileSystem(NcaSectionType.Data, IntegrityCheckLevel.None);
-
-            if (!ctrlFs.FileExists("/control.nacp")) return (null, null, cnmt);
-
-            using var nacpFile = new UniqueRef<IFile>();
-            ctrlFs.OpenFile(ref nacpFile.Ref, "/control.nacp".ToU8Span(), OpenMode.Read).ThrowIfFailure();
-            var nacpData = new byte[Marshal.SizeOf<ApplicationControlProperty>()];
-            nacpFile.Get.Read(out _, 0, nacpData).ThrowIfFailure();
-            var control = MemoryMarshal.Read<ApplicationControlProperty>(nacpData);
-
-            string kr = control.Title[(int)Language.Korean].NameString.ToString().Trim('\0', ' ');
-            string en = control.Title[(int)Language.AmericanEnglish].NameString.ToString().Trim('\0', ' ');
-            string ver = control.DisplayVersionString.ToString().Trim('\0', ' ');
-
-            return (!string.IsNullOrWhiteSpace(kr) ? kr : en, ver, cnmt);
+            log?.Invoke(string.Format(Res.Log_SplitFailed, meta.TitleId, ex.Message), LogLevel.Error);
+            return false;
         }
-        catch { return (null, null, null); }
     }
 
     private static void WriteNsp(PartitionFileSystemBuilder builder, string outPath, string outName, IProgress<(int pct, string label)> progress, CancellationToken ct)
@@ -174,7 +134,7 @@ public sealed class NspSplitService(string keysPath)
             using var fout = File.Open(outPath, FileMode.Create, FileAccess.Write);
             using var nspStream = nspStorage.AsStream();
 
-            byte[] buffer = new byte[1024 * 1024];
+            byte[] buffer = new byte[0x800000];
             long totalRead = 0;
 
             while (totalRead < size)
@@ -189,27 +149,15 @@ public sealed class NspSplitService(string keysPath)
                 fout.Write(buffer, 0, read);
                 totalRead += read;
 
-                int pct = (int)((double)totalRead / size * 100);
-                progress?.Report((pct, outName));
+                var (pct, label, _, _) = Utils.CalculateProgress(totalRead, size, outName);
+                progress?.Report((pct, label));
             }
 
             fout.Flush();
         }
         catch (Exception ex)
         {
-            throw new Exception($"NSP 쓰기 실패: {ex.Message}", ex);
+            throw new Exception(string.Format(Res.Log_WriteNspFailed, ex.Message), ex);
         }
-    }
-
-    private static string GetTypeTag(ContentMetaType type)
-    {
-        return type switch
-        {
-            ContentMetaType.Application => "BASE",
-            ContentMetaType.Patch => "UPD",
-            ContentMetaType.AddOnContent => "DLC",
-            ContentMetaType.Delta => "DLC",
-            _ => type.ToString().ToUpper()
-        };
     }
 }

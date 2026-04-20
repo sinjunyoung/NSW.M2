@@ -1,0 +1,124 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Main_Title"><value>NSW Merge Tool</value></data>
+  <data name="Label_OutputPath"><value>出力フォルダー</value></data>
+  <data name="Hint_SelectOutput"><value>出力フォルダーを選択してください。</value></data>
+  <data name="ToolTip_BrowseOutput"><value>出力フォルダーを選択します</value></data>
+  <data name="Button_MergeStart"><value>マージ開始</value></data>
+  <data name="Button_SplitStart"><value>分割開始</value></data>
+  <data name="Status_Processing"><value>処理中...</value></data>
+  <data name="Hint_DragAndDrop"><value>ここにファイルをドラッグ＆ドロップしてください（NSP, NSZ, XCI, XCZ）</value></data>
+  <data name="Header_Type"><value>種類</value></data>
+  <data name="Header_FileName"><value>ファイル名</value></data>
+  <data name="Header_FilePath"><value>パス</value></data>
+  <data name="ToolTip_AddFile"><value>ファイルを追加</value></data>
+  <data name="ToolTip_RemoveSelected"><value>選択項目を削除</value></data>
+  <data name="ToolTip_RemoveAll"><value>すべて削除</value></data>
+  <data name="Dialog_SelectGameFile"><value>ゲームファイルを選択</value></data>
+  <data name="Filter_SwitchFiles"><value>Nintendo Switchファイル</value></data>
+  <data name="Filter_AllFiles"><value>すべてのファイル</value></data>
+  <data name="Status_Analyzing"><value>解析中...</value></data>
+  <data name="Msg_Title_Info"><value>情報</value></data>
+  <data name="Msg_Title_Warning"><value>警告</value></data>
+  <data name="Msg_Title_Error"><value>エラー</value></data>
+  <data name="Msg_Title_Question"><value>確認</value></data>
+
+  <data name="Log_AnalyzeMetadata"><value>━━ メタデータ解析中 ━━</value></data>
+  <data name="Log_FinalId"><value>最終ID: [{0}] バージョン: {1}</value></data>
+  <data name="Log_MergeStart"><value>━━ Super NSP マージを開始します ━━</value></data>
+  <data name="Log_CompressionDone"><value>  [圧縮完了] {0}</value></data>
+  <data name="Log_MergeComplete"><value>マージ完了: {0}</value></data>
+  <data name="Log_Error"><value>エラー: {0}</value></data>
+  <data name="Log_SplitNoTarget"><value>すでに単一コンテンツ、または分割対象がありません。</value></data>
+  <data name="Log_SplitComplete"><value>{0} 分割完了 ({1})</value></data>
+  <data name="Log_SplitFailed"><value>分割失敗 (ID: {0}): {1}</value></data>
+  <data name="Log_WriteNspFailed"><value>NSP書き込み失敗: {0}</value></data>
+
+  <data name="Status_Tik_O"><value>チケットあり</value></data>
+  <data name="Status_Tik_X"><value>チケットなし</value></data>
+
+  <data name="Main_SelectFolder"><value>出力フォルダーを選択</value></data>
+  <data name="Main_Log_Elapsed"><value>経過時間: {0}</value></data>
+
+  <data name="Main_Log_AllComplete">
+    <value>✓ すべてのタスクが完了しました。合計時間: {0}</value>
+  </data>
+
+  <data name="Main_Msg_Done">
+    <value>完了しました！
+{0}</value>
+  </data>
+
+  <data name="Main_Err_NoBase"><value>ベースゲームを含むファイルを追加してください。</value></data>
+  <data name="Main_Err_NoOutput"><value>出力フォルダーを設定してください。</value></data>
+  <data name="Main_Err_NoFiles"><value>分割するファイルを追加してください。</value></data>
+
+  <data name="Main_Log_SplitStart">
+    <value>━━ 分割解析を開始: {0} ━━</value>
+  </data>
+
+  <data name="Main_Log_AllSplitDone">
+    <value>✓ すべての分割処理が完了しました！合計時間: {0}</value>
+  </data>
+
+  <data name="Main_Msg_SplitDone"><value>分割が完了しました。</value></data>
+  <data name="Button_Cancel"><value>キャンセル</value></data>
+</root>

@@ -12,12 +12,139 @@ using LibHac.Tools.Ncm;
 using NSW.Core.Models;
 using System.Diagnostics;
 using System.IO;
+using System.Runtime.InteropServices;
+using static LibHac.Ns.ApplicationControlProperty;
 
 namespace NSW.M2;
 
 public static class Utils
 {
     private static readonly string[] sourceArray = ["B", "U", "D"];
+
+    public static (int pct, string label, double currentMiB, double totalMiB) CalculateProgress(long readBytes, long totalBytes, string label)
+    {
+        double currentMiB = (double)readBytes / 1024 / 1024;
+        double totalMiB = (double)totalBytes / 1024 / 1024;
+
+        int pct = totalBytes > 0 ? Math.Min(100, (int)((double)readBytes / totalBytes * 100)) : 0;
+        string formattedLabel = $"{label}... {currentMiB:N2}MiB / {totalMiB:N2}MiB";
+
+        return (pct, formattedLabel, currentMiB, totalMiB);
+    }
+
+    public static string ToAppVersionString()
+    {
+        string processPath = Environment.ProcessPath ?? string.Empty;
+        var info = FileVersionInfo.GetVersionInfo(processPath);
+        DateTime buildDate = File.GetLastWriteTime(processPath);
+
+        return $"{info.ProductMajorPart}.{info.ProductMinorPart}.{info.ProductPrivatePart} (Build: {buildDate:yyyy'/'MM'/'dd})";
+    }
+
+    public static List<MetadataResult> GetMetadataFromContainer(KeySet ks, string path)
+    {
+        var results = new List<MetadataResult>();
+        if (string.IsNullOrEmpty(path) || !File.Exists(path)) return results;
+
+        using var storage = new LocalStorage(path, FileAccess.Read);
+        IFileSystem fs;
+
+        string ext = System.IO.Path.GetExtension(path).ToLower();
+        if (ext is ".xci" or ".xcz")
+        {
+            var xci = new Xci(ks, storage);
+            fs = xci.OpenPartition(XciPartitionType.Secure);
+        }
+        else
+        {
+            var pfs = new PartitionFileSystem();
+            pfs.Initialize(storage).ThrowIfFailure();
+            fs = pfs;
+        }
+
+        var allFiles = new Dictionary<string, IStorage>();
+        foreach (var entry in fs.EnumerateEntries("/", "*"))
+        {
+            var file = new UniqueRef<IFile>();
+            if (fs.OpenFile(ref file.Ref, entry.FullPath.ToU8Span(), OpenMode.Read).IsSuccess())
+            {
+                allFiles.Add(entry.Name, file.Release().AsStream().AsStorage());
+            }
+        }
+
+        var cnmtNcaNames = allFiles.Keys.Where(k => k.EndsWith(".cnmt.nca")).ToList();
+        foreach (var cnmtName in cnmtNcaNames)
+        {
+            try
+            {
+                using var ncaStorage = new FileStorage(allFiles[cnmtName].AsFile(OpenMode.Read));
+                var nca = new Nca(ks, ncaStorage);
+                using var cnmtFs = nca.OpenFileSystem(NcaSectionType.Data, IntegrityCheckLevel.None);
+
+                var cnmtEntry = cnmtFs.EnumerateEntries("/", "*.cnmt").FirstOrDefault();
+                if (cnmtEntry == null) continue;
+
+                using var cFile = new UniqueRef<IFile>();
+                cnmtFs.OpenFile(ref cFile.Ref, cnmtEntry.FullPath.ToU8Span(), OpenMode.Read).ThrowIfFailure();
+                var cnmt = new Cnmt(cFile.Get.AsStream());
+
+                string titleId = cnmt.TitleId.ToString("X16");
+                uint version = cnmt.TitleVersion.Version;
+                ContentMetaType type = cnmt.Type;
+
+                string krTitle = string.Empty;
+                string enTitle = string.Empty;
+                string displayVer = "1.0.0";
+
+                var ctrlRecord = cnmt.ContentEntries.FirstOrDefault(x => x.Type == LibHac.Ncm.ContentType.Control);
+                if (ctrlRecord != null)
+                {
+                    string ctrlId = BitConverter.ToString(ctrlRecord.NcaId).Replace("-", "").ToLower();
+                    string ctrlName = allFiles.Keys.FirstOrDefault(k => k.StartsWith(ctrlId));
+
+                    if (ctrlName != null)
+                    {
+                        using var cs = new FileStorage(allFiles[ctrlName].AsFile(OpenMode.Read));
+                        var cNca = new Nca(ks, cs);
+                        using var ctrlFs = cNca.OpenFileSystem(NcaSectionType.Data, IntegrityCheckLevel.None);
+
+                        if (ctrlFs.FileExists("/control.nacp"))
+                        {
+                            using var nFile = new UniqueRef<IFile>();
+                            ctrlFs.OpenFile(ref nFile.Ref, "/control.nacp".ToU8Span(), OpenMode.Read).ThrowIfFailure();
+                            var nData = new byte[Marshal.SizeOf<ApplicationControlProperty>()];
+                            nFile.Get.Read(out _, 0, nData).ThrowIfFailure();
+                            var control = MemoryMarshal.Read<ApplicationControlProperty>(nData);
+
+                            krTitle = control.Title[(int)Language.Korean].NameString.ToString().Trim('\0', ' ');
+                            enTitle = control.Title[(int)Language.AmericanEnglish].NameString.ToString().Trim('\0', ' ');
+
+                            if (string.IsNullOrWhiteSpace(krTitle))
+                            {
+                                foreach (var t in control.Title.Items)
+                                {
+                                    var name = t.NameString.ToString().Trim('\0', ' ');
+                                    if (!string.IsNullOrWhiteSpace(name)) { krTitle = name; break; }
+                                }
+                            }
+                            if (string.IsNullOrWhiteSpace(enTitle)) enTitle = krTitle;
+
+                            displayVer = control.DisplayVersionString.ToString().Trim('\0', ' ');
+                        }
+                    }
+                }
+
+                results.Add(new MetadataResult(titleId, version, displayVer, krTitle, enTitle, 0, type, cnmtName));
+            }
+            catch { /* 개별 CNMT 분석 실패 시 스킵 */ }
+        }
+
+        foreach (var s in allFiles.Values) s.Dispose();
+        if (fs is IDisposable d) d.Dispose();
+
+        return results;
+    }
+
 
     public static MetadataResult ExtractAggregateMetadata(KeySet ks, IEnumerable<string> paths, string updatePath)
     {

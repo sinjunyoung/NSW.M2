@@ -1,0 +1,127 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Main_Title"><value>NSW Merge Tool</value></data>
+<data name="Label_OutputPath"><value>Ausgabeordner</value></data>
+<data name="Hint_SelectOutput"><value>Wählen Sie den Ausgabeordner aus.</value></data>
+<data name="ToolTip_BrowseOutput"><value>Ausgabeordner auswählen</value></data>
+<data name="Button_MergeStart"><value>Merge starten</value></data>
+<data name="Button_SplitStart"><value>Split starten</value></data>
+<data name="Status_Processing"><value>Verarbeitung läuft...</value></data>
+<data name="Hint_DragAndDrop"><value>Dateien hierher ziehen &amp; ablegen (NSP, NSZ, XCI, XCZ)</value></data>
+<data name="Header_Type"><value>Typ</value></data>
+<data name="Header_FileName"><value>Dateiname</value></data>
+<data name="Header_FilePath"><value>Pfad</value></data>
+<data name="ToolTip_AddFile"><value>Datei hinzufügen</value></data>
+<data name="ToolTip_RemoveSelected"><value>Ausgewählte Elemente entfernen</value></data>
+<data name="ToolTip_RemoveAll"><value>Alle Elemente entfernen</value></data>
+<data name="Dialog_SelectGameFile"><value>Spieldatei auswählen</value></data>
+<data name="Filter_SwitchFiles"><value>Switch-Dateien</value></data>
+<data name="Filter_AllFiles"><value>Alle Dateien</value></data>
+<data name="Status_Analyzing"><value>Analyse läuft...</value></data>
+<data name="Msg_Title_Info"><value>Information</value></data>
+<data name="Msg_Title_Warning"><value>Warnung</value></data>
+<data name="Msg_Title_Error"><value>Fehler</value></data>
+<data name="Msg_Title_Question"><value>Bestätigung</value></data>
+
+<data name="Log_AnalyzeMetadata"><value>━━ Metadaten werden analysiert... ━━</value></data>
+<data name="Log_FinalId"><value>Endgültige ID: [{0}] Version: {1}</value></data>
+<data name="Log_MergeStart"><value>━━ Super NSP Merge wird gestartet ━━</value></data>
+<data name="Log_CompressionDone"><value>  [Komprimierung abgeschlossen] {0}</value></data>
+<data name="Log_MergeComplete"><value>Merge abgeschlossen: {0}</value></data>
+<data name="Log_Error"><value>Fehler: {0}</value></data>
+<data name="Log_SplitNoTarget"><value>Bereits einzelner Inhalt oder keine Elemente zum Aufteilen vorhanden.</value></data>
+<data name="Log_SplitComplete"><value>{0} Split abgeschlossen ({1})</value></data>
+<data name="Log_SplitFailed"><value>Split fehlgeschlagen (ID: {0}): {1}</value></data>
+<data name="Log_WriteNspFailed"><value>NSP konnte nicht geschrieben werden: {0}</value></data>
+
+<data name="Status_Tik_O"><value>Ticket vorhanden</value></data>
+<data name="Status_Tik_X"><value>Ticket fehlt</value></data>
+
+<data name="Main_SelectFolder"><value>Ausgabeordner auswählen</value></data>
+<data name="Main_Log_Elapsed"><value>{0} vergangen</value></data>
+
+<data name="Main_Log_AllComplete">
+<value>
+✓ Alle Aufgaben abgeschlossen. Gesamtzeit: {0}</value>
+</data>
+
+<data name="Main_Msg_Done">
+<value>Fertig!
+{0}</value>
+</data>
+
+<data name="Main_Err_NoBase"><value>Bitte fügen Sie eine Datei mit dem Basisspiel hinzu.</value></data>
+<data name="Main_Err_NoOutput"><value>Bitte legen Sie den Ausgabeordner fest.</value></data>
+<data name="Main_Err_NoFiles"><value>Bitte fügen Sie Dateien zur Liste zum Splitten hinzu.</value></data>
+
+<data name="Main_Log_SplitStart">
+<value>
+━━ Starte Split-Analyse: {0} ━━</value>
+</data>
+
+<data name="Main_Log_AllSplitDone">
+<value>
+✓ Alle Split-Vorgänge abgeschlossen! Gesamtzeit: {0}</value>
+</data>
+
+<data name="Main_Msg_SplitDone"><value>Split abgeschlossen.</value></data>
+<data name="Button_Cancel"><value>Abbrechen</value></data>
+</root>

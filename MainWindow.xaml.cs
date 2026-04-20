@@ -9,41 +9,54 @@ using System.Windows.Documents;
 using System.Windows.Media;
 using Wpf.Ui.Controls;
 using Path = System.IO.Path;
+using Res = NSW.M2.Properties.Resources;
 
 namespace NSW.M2;
 
 public partial class MainWindow : FluentWindow
 {
+    #region Fields & Properties
+
     public string AppVersion
     {
         get
         {
-            if (this.DataContext != null || true) { }
-            return "NSW Merge Tool - Ver 2026/04/19";
+            string version = Utils.ToAppVersionString();
+            return $"{this.Title} - Ver {version}";
         }
     }
 
     private static readonly string KeysPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "prod.keys");
 
     private readonly Stopwatch _totalSw = new();
+    private CancellationTokenSource? _cts;
+
+    #endregion
 
     public MainWindow()
     {
         InitializeComponent();
 
         txtOutput.TextChanged += (_, _) => outputHint.Visibility = string.IsNullOrEmpty(txtOutput.Text) ? Visibility.Visible : Visibility.Collapsed;
-
         txtOutput.Text = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "output");
     }
 
     private void BtnBrowseOutput_Click(object sender, RoutedEventArgs e)
     {
-        var dlg = new OpenFolderDialog { Title = "작업 폴더 선택" };
+        var dlg = new OpenFolderDialog { Title = Res.Main_SelectFolder };
         if (dlg.ShowDialog() == true) txtOutput.Text = dlg.FolderName;
     }
 
     private async void BtnMergeStart_Click(object sender, RoutedEventArgs e)
     {
+        if (_cts != null && !_cts.IsCancellationRequested)
+        {
+            _cts.Cancel();
+            btnMergeStart.Content = Res.Button_MergeStart;
+            return;
+        }
+
+        _cts = new CancellationTokenSource();
         logBox.Document.Blocks.Clear();
 
         if (!TryGetBuildRequest(out var req, out string errorMsg))
@@ -62,101 +75,121 @@ public partial class MainWindow : FluentWindow
         {
             this.progress.Value = p.pct >= 0 ? p.pct : 0;
             progressLabel.Text = p.pct >= 0 ? $"{p.label} ({p.pct}%)" : p.label;
-            progressTime.Text = $"{_totalSw.Elapsed:mm\\:ss} 경과";
+            progressTime.Text = string.Format(Res.Main_Log_Elapsed, _totalSw.Elapsed.ToString(@"mm\:ss"));
         });
 
-        string? finalNsp = null;
-
-        await Task.Run(() =>
+        try
         {
-            try
+            await Task.Run(() =>
             {
                 var service = new NspMergeService(KeysPath);
-                finalNsp = service.Merge(req!, progress, LogFromService, CancellationToken.None);
+                string finalNsp = service.Merge(req!, progress, LogFromService, _cts.Token);
 
-                Log($"\n✓ 전체 완료  총 소요: {_totalSw.Elapsed:mm\\:ss}", LogLevel.Ok);
+                Log(string.Format(Res.Main_Log_AllComplete, _totalSw.Elapsed.ToString(@"mm\:ss")), LogLevel.Ok);
 
                 Dispatcher.Invoke(() =>
                 {
-                    MessageBoxHelper.ShowInfo($"완료!\n{finalNsp}");
+                    MessageBoxHelper.ShowInfo(string.Format(Res.Main_Msg_Done, finalNsp));
                     Process.Start("explorer.exe", $"\"{req!.OutputDir}\"");
                 });
-            }
-            catch (Exception ex)
-            {
-                Log($"오류: {ex.Message}", LogLevel.Error);
-                Log(ex.StackTrace ?? "", LogLevel.Error);
-            }
-        });
-
-        SetWorking(false);
+            }, _cts.Token);
+        }
+        catch (OperationCanceledException)
+        {
+            Log(Res.Button_Cancel, LogLevel.Error);
+        }
+        catch (Exception ex)
+        {
+            Log($"{Res.Log_Error}: {ex.Message}", LogLevel.Error);
+        }
+        finally
+        {
+            _cts.Dispose();
+            _cts = null;
+            SetWorking(false);
+        }
     }
 
     private async void BtnSplitStart_Click(object sender, RoutedEventArgs e)
     {
+        if (_cts != null && !_cts.IsCancellationRequested)
+        {
+            _cts.Cancel();
+            return;
+        }
+
         logBox.Document.Blocks.Clear();
 
         if (!FileMgr.GameFiles.Any())
         {
-            MessageBoxHelper.ShowWarning("분리할 파일을 목록에 추가하세요.");
+            MessageBoxHelper.ShowWarning(Res.Main_Err_NoFiles);
             return;
         }
 
         string outputDir = txtOutput.Text.Trim();
         if (string.IsNullOrEmpty(outputDir))
         {
-            MessageBoxHelper.ShowWarning("작업 폴더를 설정하세요.");
+            MessageBoxHelper.ShowWarning(Res.Main_Err_NoOutput);
             return;
         }
 
         if (!Directory.Exists(outputDir))
             Directory.CreateDirectory(outputDir);
 
-        SetWorking(true);
+        _cts = new CancellationTokenSource();
+        logBox.Document.Blocks.Clear();
+        SetWorking(true, true); 
         _totalSw.Restart();
 
         var progress = new Progress<(int pct, string label)>(p =>
         {
             this.progress.Value = p.pct >= 0 ? p.pct : 0;
             progressLabel.Text = p.pct >= 0 ? $"{p.label} ({p.pct}%)" : p.label;
-            progressTime.Text = $"{_totalSw.Elapsed:mm\\:ss} 경과";
+            progressTime.Text = string.Format(Res.Main_Log_Elapsed, _totalSw.Elapsed.ToString(@"mm\:ss"));
         });
 
-        await Task.Run(() =>
+        try
         {
-            try
+            await Task.Run(() =>
             {
+                int resultCount = 0;
                 var service = new NspSplitService(KeysPath);
 
                 foreach (var fileVm in FileMgr.GameFiles)
                 {
-                    Log($"\n━━ 분리 분석 시작: {Path.GetFileName(fileVm.FilePath)} ━━", LogLevel.Info);
+                    _cts.Token.ThrowIfCancellationRequested();
 
-                    service.Split(
-                        fileVm.FilePath,
-                        outputDir,
-                        progress,
-                        LogFromService,
-                        CancellationToken.None
-                    );
+                    Log(string.Format(Res.Main_Log_SplitStart, Path.GetFileName(fileVm.FilePath)), LogLevel.Info);
+
+                    resultCount += service.Split(fileVm.FilePath, outputDir, progress, LogFromService, _cts.Token);
                 }
 
-                Log($"\n✓ 모든 분리 작업 완료! 총 소요: {_totalSw.Elapsed:mm\\:ss}", LogLevel.Ok);
+                Log(string.Format(Res.Main_Log_AllSplitDone, _totalSw.Elapsed.ToString(@"mm\:ss")), LogLevel.Ok);
 
-                Dispatcher.Invoke(() =>
+                if (resultCount > 0)
                 {
-                    MessageBoxHelper.ShowInfo("분리가 완료되었습니다.");
-                    Process.Start("explorer.exe", $"\"{outputDir}\"");
-                });
-            }
-            catch (Exception ex)
-            {
-                Log($"분리 중 오류 발생: {ex.Message}", LogLevel.Error);
-                Log(ex.StackTrace ?? "", LogLevel.Error);
-            }
-        });
-
-        SetWorking(false);
+                    Dispatcher.Invoke(() =>
+                    {
+                        MessageBoxHelper.ShowInfo(Res.Main_Msg_SplitDone);
+                        Process.Start("explorer.exe", $"\"{outputDir}\"");
+                    });
+                }
+            }, _cts.Token);
+        }
+        catch (OperationCanceledException)
+        {
+            Log(Res.Log_Error + ": " + Res.Button_Cancel, LogLevel.Error);
+        }
+        catch (Exception ex)
+        {
+            Log($"{Res.Log_Error}: {ex.Message}", LogLevel.Error);
+        }
+        finally
+        {
+            _cts?.Dispose();
+            _cts = null;
+            SetWorking(false);
+        }
     }
 
     private bool TryGetBuildRequest(out BuildRequest? req, out string errorMsg)
@@ -167,23 +200,18 @@ public partial class MainWindow : FluentWindow
         var baseVm = FileMgr.GameFiles.FirstOrDefault(f => f.FileType.Contains('B'));
         if (baseVm == null)
         {
-            errorMsg = "본편(BASE)이 포함된 파일을 추가하세요.";
+            errorMsg = Res.Main_Err_NoBase;
             return false;
         }
 
         string outputDir = txtOutput.Text.Trim();
         if (string.IsNullOrEmpty(outputDir))
         {
-            errorMsg = "작업 폴더를 설정하세요.";
+            errorMsg = Res.Main_Err_NoOutput;
             return false;
         }
 
-        req = new BuildRequest(
-            BaseFilePath: baseVm.FilePath,
-            UpdateFilePath: FileMgr.GameFiles.FirstOrDefault(f => f.FileType.Contains('U'))?.FilePath ?? "",
-            DlcFilePaths: [.. FileMgr.GameFiles.Where(f => f.FileType.Contains('D')).Select(f => f.FilePath)],
-            OutputDir: outputDir
-        )
+        req = new BuildRequest(baseVm.FilePath, FileMgr.GameFiles.FirstOrDefault(f => f.FileType.Contains('U'))?.FilePath ?? "", [.. FileMgr.GameFiles.Where(f => f.FileType.Contains('D')).Select(f => f.FilePath)], outputDir)
         {
             CompressToNcz = false,
             NczCompressionLevel = 3
@@ -215,12 +243,24 @@ public partial class MainWindow : FluentWindow
         });
     }
 
-    private void SetWorking(bool working)
+    private void SetWorking(bool working, bool isSplit = false)
     {
         Dispatcher.Invoke(() =>
         {
-            btnMergeStart.IsEnabled = !working;
-            btnSplitStart.IsEnabled = !working;
+            if (working)
+            {
+                if (isSplit) btnSplitStart.Content = Res.Button_Cancel;
+                else btnMergeStart.Content = Res.Button_Cancel;
+            }
+            else
+            {
+                btnMergeStart.Content = Res.Button_MergeStart;
+                btnSplitStart.Content = Res.Button_SplitStart;
+            }
+
+            btnMergeStart.IsEnabled = !working || !isSplit;
+            btnSplitStart.IsEnabled = !working || isSplit;
+
             FileMgr.IsEnabled = !working;
             btnBrowseOutput.IsEnabled = !working;
             txtOutput.IsEnabled = !working;
