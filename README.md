@@ -4,7 +4,7 @@ A lightweight GUI tool for merging and splitting Nintendo Switch container files
 
 Processes files using a streaming pipeline without creating temporary data on disk.
 
-<img width="800" height="600" alt="image" src="https://github.com/user-attachments/assets/d1360006-91b3-42b5-bc69-213b243949b1" />
+<img width="800" height="600" alt="image" src="https://github.com/user-attachments/assets/5c45dae6-d68e-46aa-8a20-badda83b9f01" />
 
 ---
 
