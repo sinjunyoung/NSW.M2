@@ -1,4 +1,4 @@
-<p align="left">
+<p align="right">
 🇺🇸 English | <a href="README.ko.md">🇰🇷 한국어</a>
 </p>
 
@@ -24,7 +24,6 @@
 ### Split container files
 
 - Split large container files into smaller parts
-- Configurable part size
 
 ---
 
