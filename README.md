@@ -1,6 +1,6 @@
 # Switch Container Merger / Splitter (GUI)
 
-GUI tool to merge and split Nintendo Switch NSP, NSZ, XCI and XCZ
+Lightweight GUI tool to merge and split Nintendo Switch NSP, NSZ, XCI and XCZ files with streaming support
 
 Processes files using a streaming pipeline without creating temporary data on disk.
 
