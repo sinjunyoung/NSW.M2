@@ -1,3 +1,9 @@
+<p align="left">
+🇺🇸 English | <a href="README.ko.md">🇰🇷 한국어</a>
+</p>
+
+---
+
 # Switch Container Merger / Splitter (GUI)
 
 - Lightweight GUI tool to merge and split Nintendo Switch NSP, NSZ, XCI and XCZ files.
