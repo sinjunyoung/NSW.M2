@@ -9,7 +9,7 @@
 - Nintendo Switch NSP, NSZ, XCI, XCZ 파일을 병합 및 분할할 수 있는 경량 GUI 도구
 - 디스크에 임시 파일을 생성하지 않는 스트리밍 파이프라인 방식으로 처리
 
-<img width="800" height="600" alt="image" src="https://github.com/user-attachments/assets/5c45dae6-d68e-46aa-8a20-badda83b9f01" />
+<img width="800" height="600" alt="image" src="https://github.com/user-attachments/assets/288195c3-be9d-4c3b-966e-a9c0e17aecd0" />
 
 ---
 
