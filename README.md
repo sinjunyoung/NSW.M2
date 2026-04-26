@@ -102,7 +102,3 @@ Users must provide their own keys if required.
 This project is intended for research and development purposes only.
 
 ---
-
-## License
-
-MIT License
