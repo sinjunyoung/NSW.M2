@@ -1,0 +1,143 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:NSW.M2.Avalonia.Android.ViewModels"
+             xmlns:enums="using:NSW.M2.Avalonia.Android.Enums"
+             x:Class="NSW.M2.Avalonia.Android.Views.CustomFilePickerControl"
+             x:DataType="vm:CustomFilePickerViewModel"
+             Background="Transparent"
+             FontFamily="Consolas">
+	<Grid x:Name="MainGrid" RowDefinitions="Auto,Auto,*,Auto">
+		<Border Grid.Row="0" Background="#2D2D2D" Padding="10,8">
+			<ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled">
+				<ItemsControl ItemsSource="{Binding BreadcrumbPaths}">
+					<ItemsControl.ItemsPanel>
+						<ItemsPanelTemplate>
+							<StackPanel Orientation="Horizontal" Spacing="5"/>
+						</ItemsPanelTemplate>
+					</ItemsControl.ItemsPanel>
+					<ItemsControl.ItemTemplate>
+						<DataTemplate>
+							<StackPanel Orientation="Horizontal">
+								<Button Content="{Binding Name}"
+                                        CommandParameter="{Binding}"
+                                        Click="OnBreadcrumbClick"
+                                        Padding="8,4"
+                                        Background="Transparent"
+                                        BorderThickness="0"
+                                        Foreground="White"/>
+								<TextBlock Text="/"
+		   Margin="3,0"
+		   VerticalAlignment="Center"
+		   Foreground="#A0A0A0"/>
+							</StackPanel>
+						</DataTemplate>
+					</ItemsControl.ItemTemplate>
+				</ItemsControl>
+			</ScrollViewer>
+		</Border>
+
+		<Border Grid.Row="1" Background="#1E1E1E" Padding="10,6">
+			<TextBlock Text="{Binding Title}" FontSize="13" Foreground="White"/>
+		</Border>
+
+		<Border Grid.Row="2" BorderBrush="#3D3D3D" BorderThickness="1">
+			<Panel>
+				<Border IsVisible="{Binding IsLoading}" Background="#252525">
+					<StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="10">
+						<TextBlock Text="Loading..." FontSize="14" Foreground="White"/>
+					</StackPanel>
+				</Border>
+
+				<ScrollViewer Name="FileScrollViewer" IsVisible="{Binding !IsLoading}">
+					<ItemsControl Name="FileItemsControl"
+                                  ItemsSource="{Binding Files}"
+                                  Background="#1E1E1E">
+						<ItemsControl.ItemTemplate>
+							<DataTemplate x:DataType="vm:FileItem">
+								<Border Name="FileItemBorder"
+                                        Padding="12,10"
+                                        Background="Transparent"
+                                        Loaded="OnItemLoaded"
+                                        Tapped="OnFileTapped"
+                                        Cursor="Hand">
+									<Grid ColumnDefinitions="Auto,*,Auto,Auto">
+										<Panel Grid.Column="0" Width="40" Height="40" Margin="0,0,12,0">
+											<Border IsVisible="{Binding Thumbnail, Converter={x:Static ObjectConverters.IsNotNull}}"
+                                                    Width="40" Height="40" CornerRadius="4" ClipToBounds="True"
+                                                    BorderBrush="{DynamicResource Background.Border}" BorderThickness="1">
+												<Image Source="{Binding Thumbnail}" Stretch="UniformToFill"/>
+											</Border>
+											<Panel IsVisible="{Binding Thumbnail, Converter={x:Static ObjectConverters.IsNull}}">
+												<PathIcon Data="{StaticResource Icon.Parent}" Width="24" Height="24" Foreground="{DynamicResource Text.Secondary}" IsVisible="{Binding IconType, Converter={x:Static ObjectConverters.Equal}, ConverterParameter={x:Static enums:FileIconType.Parent}}"/>
+												<PathIcon Data="{StaticResource Icon.Folder}" Width="24" Height="24" Foreground="#FFD700" IsVisible="{Binding IconType, Converter={x:Static ObjectConverters.Equal}, ConverterParameter={x:Static enums:FileIconType.Folder}}"/>
+												<PathIcon Data="{StaticResource Icon.InternalStorage}" Width="24" Height="24" Foreground="#4CAF50" IsVisible="{Binding IconType, Converter={x:Static ObjectConverters.Equal}, ConverterParameter={x:Static enums:FileIconType.InternalStorage}}"/>
+												<PathIcon Data="{StaticResource Icon.SdCard}" Width="24" Height="24" Foreground="#2196F3" IsVisible="{Binding IconType, Converter={x:Static ObjectConverters.Equal}, ConverterParameter={x:Static enums:FileIconType.SdCard}}"/>
+												<PathIcon Data="{StaticResource Icon.Image}" Width="24" Height="24" Foreground="#4CAF50" IsVisible="{Binding IconType, Converter={x:Static ObjectConverters.Equal}, ConverterParameter={x:Static enums:FileIconType.Image}}"/>
+												<PathIcon Data="{StaticResource Icon.Video}" Width="24" Height="24" Foreground="#F44336" IsVisible="{Binding IconType, Converter={x:Static ObjectConverters.Equal}, ConverterParameter={x:Static enums:FileIconType.Video}}"/>
+												<PathIcon Data="{StaticResource Icon.Audio}" Width="24" Height="24" Foreground="#9C27B0" IsVisible="{Binding IconType, Converter={x:Static ObjectConverters.Equal}, ConverterParameter={x:Static enums:FileIconType.Audio}}"/>
+												<PathIcon Data="{StaticResource Icon.Game}" Width="24" Height="24" Foreground="#FF9800" IsVisible="{Binding IconType, Converter={x:Static ObjectConverters.Equal}, ConverterParameter={x:Static enums:FileIconType.Game}}"/>
+												<PathIcon Data="{StaticResource Icon.File}" Width="24" Height="24" Foreground="{DynamicResource Text.Secondary}" IsVisible="{Binding IconType, Converter={x:Static ObjectConverters.Equal}, ConverterParameter={x:Static enums:FileIconType.File}}"/>
+											</Panel>
+										</Panel>
+
+										<TextBlock Grid.Column="1"
+                                                   Text="{Binding Name}"
+                                                   FontSize="14"
+                                                   VerticalAlignment="Center"
+                                                   Foreground="White"
+                                                   TextWrapping="NoWrap"
+                                                   TextTrimming="CharacterEllipsis"/>
+
+										<TextBlock Grid.Column="2"
+                                                   Text="{Binding DisplaySize}"
+                                                   Foreground="#A0A0A0"
+                                                   FontSize="12"
+                                                   Margin="15,0"
+                                                   VerticalAlignment="Center"
+                                                   MinWidth="70"
+                                                   TextAlignment="Right"/>
+
+										<TextBlock Grid.Column="3"
+                                                   Text="{Binding ModifiedDate, StringFormat='{}{0:MM/dd HH:mm}'}"
+                                                   Foreground="#A0A0A0"
+                                                   FontSize="11"
+                                                   VerticalAlignment="Center"
+                                                   IsVisible="{Binding !IsDirectory}"
+                                                   MinWidth="90"/>
+									</Grid>
+								</Border>
+							</DataTemplate>
+						</ItemsControl.ItemTemplate>
+					</ItemsControl>
+				</ScrollViewer>
+			</Panel>
+		</Border>
+
+		<Border Grid.Row="3" Background="#2D2D2D" Padding="15,10" BorderBrush="#3D3D3D" BorderThickness="0,1,0,0">
+			<Grid ColumnDefinitions="*,Auto,Auto">
+				<TextBlock Grid.Column="0"
+                           Text="{Binding SelectedFilesText}"
+                           VerticalAlignment="Center"
+                           FontSize="13"
+                           Foreground="#A0A0A0"
+                           TextTrimming="CharacterEllipsis"/>
+
+				<Button Grid.Column="1"
+                        Content="OK"
+                        Foreground="White"
+						HorizontalContentAlignment="Center"
+						VerticalContentAlignment="Center"
+						Width="100" Height="36"
+                        Margin="0,0,8,0"
+                        Click="OnConfirmClick"/>
+				<Button Grid.Column="2"
+                        Content="Cancel"
+                        Foreground="White"
+						HorizontalContentAlignment="Center"
+						VerticalContentAlignment="Center"
+                        Width="100" Height="36"
+                        Click="OnCancelClick"/>
+			</Grid>
+		</Border>
+	</Grid>
+</UserControl>

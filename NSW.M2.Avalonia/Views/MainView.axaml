@@ -1,0 +1,110 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:ui="clr-namespace:NSW.M2.Avalonia.UI;assembly=NSW.M2.Avalonia"
+             xmlns:l="clr-namespace:NSW.Core.Properties;assembly=NSW.Core"
+             mc:Ignorable="d" d:DesignWidth="960" d:DesignHeight="720"
+             x:Class="NSW.M2.Avalonia.Views.MainView"
+             FontFamily="Consolas">
+	<Grid RowDefinitions="*">
+		<Grid Grid.Row="0" Margin="15,5,15,15">
+			<Grid.RowDefinitions>
+				<RowDefinition Height="*" MaxHeight="270"/>
+				<RowDefinition Height="Auto"/>
+				<RowDefinition Height="Auto"/>
+				<RowDefinition Height="Auto"/>
+				<RowDefinition Height="*"/>
+			</Grid.RowDefinitions>
+
+			<ui:FileManagerControl x:Name="FileMgr"
+                                   Grid.Row="0"
+                                   Height="250"
+                                   Margin="0,0,0,16"/>
+
+			<Grid Grid.Row="1" Margin="0,0,0,16" ColumnDefinitions="20, Auto, *, Auto">
+				<Image Source="/Assets/Images/WorkSpace.png" Stretch="Uniform" RenderOptions.BitmapInterpolationMode="HighQuality" />
+				<TextBlock Grid.Column="1" Text="{x:Static l:Resources.Label_OutputPath}"
+                           FontSize="12"
+                           Margin="12,0,12,0"
+						   FontWeight="Bold"
+                           Foreground="White"
+                           VerticalAlignment="Center"/>
+
+				<Border Grid.Column="2" Margin="0,0,8,0"
+                        Background="#12FFFFFF"
+                        BorderBrush="#30FFFFFF"
+                        BorderThickness="1"
+                        CornerRadius="6">
+					<Panel>
+						<TextBox x:Name="txtOutput"
+                                 Background="Transparent"
+                                 BorderThickness="0"
+                                 Foreground="#DCDCDC"
+                                 VerticalContentAlignment="Center"
+                                 Padding="10,0"
+                                 Height="36"/>
+						<TextBlock x:Name="outputHint"
+                                   Text="{x:Static l:Resources.Hint_SelectOutput}"
+                                   Foreground="#50FFFFFF"
+                                   FontSize="11"
+                                   VerticalAlignment="Center"
+                                   Margin="12,0,0,0"
+                                   IsHitTestVisible="False"/>
+					</Panel>
+				</Border>
+
+				<Button Grid.Column="3" x:Name="btnBrowseOutput"
+                        ToolTip.Tip="{x:Static l:Resources.ToolTip_BrowseOutput}"
+                        Width="36" Height="36" Padding="0"
+                        Background="Transparent" BorderThickness="0"
+                        HorizontalContentAlignment="Center"						
+                        VerticalContentAlignment="Center"
+                        Click="BtnBrowseOutput_Click">
+					<Image Source="/Assets/Images/OpenFolder.png" Stretch="Uniform" RenderOptions.BitmapInterpolationMode="HighQuality" />
+				</Button>
+			</Grid>
+
+			<Grid Grid.Row="2" Margin="0,0,0,10" ColumnDefinitions="*, 10, *">
+				<Button Grid.Column="0" x:Name="btnMergeStart"
+                        Content="{x:Static l:Resources.Button_MergeStart}"
+                        HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                        HorizontalContentAlignment="Center" VerticalContentAlignment="Center"
+                        Height="44" FontSize="12"
+                        Click="BtnMergeStart_Click"/>
+
+				<Button Grid.Column="2" x:Name="btnSplitStart"
+                        Content="{x:Static l:Resources.Button_SplitStart}"
+                        HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                        HorizontalContentAlignment="Center" VerticalContentAlignment="Center"
+                        Height="44" FontSize="12"
+                        Click="BtnSplitStart_Click"/>
+			</Grid>
+
+			<Grid Grid.Row="3" Margin="0,0,0,10" x:Name="progressArea" IsVisible="False">
+				<Grid.RowDefinitions>
+					<RowDefinition Height="Auto"/>
+					<RowDefinition Height="Auto"/>
+				</Grid.RowDefinitions>
+				<Grid Grid.Row="0" Margin="0,0,0,4" ColumnDefinitions="*, Auto">
+					<TextBlock x:Name="progressLabel" Grid.Column="0"
+                               Text="{x:Static l:Resources.Status_Processing}"
+                               FontSize="11" Foreground="#A0A0A0"/>
+					<TextBlock x:Name="progressTime" Grid.Column="1"
+                               FontSize="11" Foreground="#606060"/>
+				</Grid>
+				<ProgressBar Grid.Row="1" x:Name="progress"
+                             Minimum="0" Maximum="100" Height="4"/>
+			</Grid>
+
+			<Border Grid.Row="4" Background="#12FFFFFF" BorderBrush="#30FFFFFF"
+                    BorderThickness="1" CornerRadius="8" Padding="2">
+				<TextBox x:Name="logBox"
+                         AcceptsReturn="True" IsReadOnly="True"
+                         FontSize="11"
+                         Foreground="#C8C8C8" Background="Transparent"
+                         BorderThickness="0" Padding="8,6"/>
+			</Border>
+		</Grid>
+	</Grid>
+</UserControl>

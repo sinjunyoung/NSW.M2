@@ -1,0 +1,14 @@
+# Visual Studio 캐시 및 설정
+.vs/
+[Dd]ebug/
+[Rr]elease/
+bin/
+obj/
+*.user
+*.suo
+
+# 보안 키 파일
+prod.keys
+
+# 기타 로그
+*.log
