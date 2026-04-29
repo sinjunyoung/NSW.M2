@@ -120,14 +120,8 @@
   <data name="Main_Title" xml:space="preserve">
     <value>NSW 병합 도구</value>
   </data>
-  <data name="Label_OutputPath" xml:space="preserve">
-    <value>출력 경로</value>
-  </data>
   <data name="Hint_SelectOutput" xml:space="preserve">
     <value>출력 폴더를 선택하세요</value>
-  </data>
-  <data name="ToolTip_BrowseOutput" xml:space="preserve">
-    <value>출력 폴더 선택</value>
   </data>
   <data name="Button_MergeStart" xml:space="preserve">
     <value>병합 시작</value>
@@ -230,8 +224,7 @@
 ✓ 전체 완료  총 소요: {0}</value>
   </data>
   <data name="Main_Msg_Done" xml:space="preserve">
-    <value>완료!
-{0}</value>
+    <value>완료! {0}</value>
   </data>
   <data name="Main_Err_NoBase" xml:space="preserve">
     <value>본편(BASE)이 포함된 파일을 추가하세요.</value>
@@ -286,9 +279,6 @@
   <data name="Log_DecompressAndMerge" xml:space="preserve">
     <value>압축 해제 및 병합중</value>
   </data>
-  <data name="Log_Merging" xml:space="preserve">
-    <value>병합 중</value>
-  </data>
   <data name="Log_DeleteIncompleteFile" xml:space="preserve">
     <value>불완전하게 생성된 파일을 삭제했습니다.</value>
   </data>
@@ -306,5 +296,89 @@
   </data>
   <data name="Main_Err_NoKeys_Android" xml:space="preserve">
     <value>prod.keys 파일이 없습니다. 키 파일을 Download 폴더에 넣어주세요.</value>
+  </data>
+  <data name="Log_CompressAndMerge" xml:space="preserve">
+    <value>  [압축하며 병합 중]</value>
+  </data>
+  <data name="Label_Compression" xml:space="preserve">
+    <value>압축</value>
+  </data>
+  <data name="ToolTip_BrowseOutput" xml:space="preserve">
+    <value>출력 폴더 선택</value>
+  </data>
+  <data name="ToolTip_OpenWorkSpace" xml:space="preserve">
+    <value>출력 폴더 열기</value>
+  </data>
+  <data name="ToolTip_Compress" xml:space="preserve">
+    <value>체크 시 NSZ로 압축합니다 (병합 전용)</value>
+  </data>
+  <data name="Main_CompressTitle" xml:space="preserve">
+    <value>NSW 압축 도구</value>
+  </data>
+  <data name="Button_StartCompress" xml:space="preserve">
+    <value>압축 시작</value>
+  </data>
+  <data name="Button_StartDecompress" xml:space="preserve">
+    <value>해제 시작</value>
+  </data>
+  <data name="Log_ValidationStart" xml:space="preserve">
+    <value>검증 시작</value>
+  </data>
+  <data name="Log_ValidationComplete" xml:space="preserve">
+    <value>검증 완료</value>
+  </data>
+  <data name="Log_Validating" xml:space="preserve">
+    <value>검증 중...</value>
+  </data>
+  <data name="Button_Verify" xml:space="preserve">
+    <value>검증</value>
+  </data>
+  <data name="Log_CompressionRatio" xml:space="preserve">
+    <value>압축률</value>
+  </data>
+  <data name="Log_ModeCompress" xml:space="preserve">
+    <value>압축</value>
+  </data>
+  <data name="Log_ModeDecompress" xml:space="preserve">
+    <value>해제</value>
+  </data>
+  <data name="Log_ProcessStart" xml:space="preserve">
+    <value>시작</value>
+  </data>
+  <data name="Log_ProcessError" xml:space="preserve">
+    <value>처리 오류</value>
+  </data>
+  <data name="Log_StatusCompressing" xml:space="preserve">
+    <value>압축 중...</value>
+  </data>
+  <data name="Log_StatusDecompressing" xml:space="preserve">
+    <value>해제 중...</value>
+  </data>
+  <data name="Log_StatusCopying" xml:space="preserve">
+    <value>복사 중...</value>
+  </data>
+  <data name="Log_StatusVerifying" xml:space="preserve">
+    <value>검증 중...</value>
+  </data>
+  <data name="Log_StatusDone" xml:space="preserve">
+    <value>완료</value>
+  </data>
+  <data name="Log_Merging" xml:space="preserve">
+    <value>병합 중...</value>
+  </data>
+  <data name="Error_NoCompressFiles" xml:space="preserve">
+    <value>압축할 파일이 없습니다.</value>
+  </data>
+  <data name="Error_NoDecompressFiles" xml:space="preserve">
+    <value>해제할 파일이 없습니다.</value>
+  </data>
+  <data name="Label_OutputPath" xml:space="preserve">
+    <value>출력 폴더</value>
+  </data>
+  <data name="ToolTip_CompressLevel" xml:space="preserve">
+    <value>3: 최대 속도 | 9: 균형 | 18: 권장 | 22: 최대 압축</value>
+  </data>
+  <data name="ToolTip_VerifyCompress" xml:space="preserve">
+    <value>압축 후 추가 검증을 실행합니다</value>
   </data>
 </root>

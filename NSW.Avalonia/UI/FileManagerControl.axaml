@@ -3,10 +3,10 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:l="clr-namespace:NSW.Core.Properties;assembly=NSW.Core"
-             xmlns:vm="clr-namespace:NSW.M2.Avalonia.ViewModels;assembly=NSW.M2.Avalonia"
-             xmlns:ui="clr-namespace:NSW.M2.Avalonia.UI;assembly=NSW.M2.Avalonia"
+             xmlns:vm="clr-namespace:NSW.Avalonia.ViewModels"
+             xmlns:ui="clr-namespace:NSW.Avalonia.UI"
              mc:Ignorable="d" d:DesignHeight="400" d:DesignWidth="800"
-             x:Class="NSW.M2.Avalonia.UI.FileManagerControl"
+             x:Class="NSW.Avalonia.UI.FileManagerControl"
              x:DataType="ui:FileManagerControl"
              FontFamily="Consolas">
 	<UserControl.Resources>
@@ -28,6 +28,7 @@
 			<Setter Property="Foreground" Value="#A0A0A0"/>
 			<Setter Property="FontSize" Value="12"/>
 			<Setter Property="Padding" Value="8,5"/>
+			<Setter Property="HorizontalContentAlignment" Value="Center"/>
 		</Style>
 	</UserControl.Styles>
 
@@ -51,13 +52,15 @@
                           CanUserResizeColumns="True"
                           AutoGenerateColumns="False"
                           SelectionMode="Extended"
-                          DragDrop.AllowDrop="True">
+                          DragDrop.AllowDrop="True"
+						  KeyUp="LvFiles_KeyUp">
 					<DataGrid.Columns>
 						<DataGridTemplateColumn Header="{x:Static l:Resources.Header_Type}" Width="Auto"
                                                 CellTemplate="{StaticResource TypeCellTemplate}"/>
 
 						<DataGridTextColumn Header="{x:Static l:Resources.Header_FileName}" Width="Auto"
-                                            Binding="{Binding FileName}" FontSize="11"/>
+                                            Binding="{Binding FileName}" FontSize="11"
+											/>
 
 						<DataGridTextColumn Header="{x:Static l:Resources.Header_Ext}" Width="Auto"
                                             Binding="{Binding Extension}" FontSize="11"/>

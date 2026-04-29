@@ -5,8 +5,8 @@
     <SupportedOSPlatformVersion>21</SupportedOSPlatformVersion>
     <Nullable>enable</Nullable>
     <ApplicationId>com.nsw.m2.avalonia</ApplicationId>
-    <ApplicationVersion>1</ApplicationVersion>
-    <ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
+    <ApplicationVersion>2</ApplicationVersion>
+    <ApplicationDisplayVersion>2.0</ApplicationDisplayVersion>
     <AndroidPackageFormat>apk</AndroidPackageFormat>
     <TargetPlatformVersion>34</TargetPlatformVersion>
   </PropertyGroup>
@@ -17,6 +17,12 @@
 <PropertyGroup Condition="'$(Configuration)' == 'Release'">
     <AndroidEnableProfiledAot>true</AndroidEnableProfiledAot>
     <AndroidLinkMode>None</AndroidLinkMode>
+</PropertyGroup>
+<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+  <NoWarn>CS8600;CS8602;CS8603;CS8604;CA1416</NoWarn>
+</PropertyGroup>
+<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+  <NoWarn>CS8600;CS8602;CS8603;CS8604;CA1416</NoWarn>
 </PropertyGroup>
 
   <ItemGroup>

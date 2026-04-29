@@ -24,7 +24,7 @@
     <PathMap Condition=" '$(BuildType)' == 'Release' and '$(HasGitDir)' == 'false' ">$(MSBuildProjectDirectory)=C:/LibHac/</PathMap>
     <DeterministicSourcePaths Condition=" '$(BuildType)' == 'Release' and '$(HasGitDir)' == 'true' ">true</DeterministicSourcePaths>
 
-    <NoWarn>$(NoWarn);1591;CA1816</NoWarn>
+    <NoWarn>$(NoWarn);1591;CS8632;CA1816</NoWarn>
   </PropertyGroup>
 
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
@@ -51,6 +51,9 @@
     <PackageReference Include="JetBrains.Annotations" ExcludeAssets="runtime" PrivateAssets="all">
       <IncludeAssets>compile; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\NSW.Utils\NSW.Utils.csproj" />
   </ItemGroup>
 
 </Project>

@@ -340,6 +340,58 @@ public class Nca
         return new ConcatenationStorage(new[] { decStorage, outputBucketTreeData }, true);
     }
 
+    public AesCtrCounterExtendedStorage? OpenAesCtrCounterExtendedStorage(int index)
+    {
+        if (!SectionExists(index)) return null;
+        var fsHeader = GetFsHeader(index);
+        if (fsHeader.EncryptionType != NcaEncryptionType.AesCtrEx) return null;
+
+        IStorage sectionStorage = OpenSectionStorage(index);
+        NcaFsPatchInfo info = fsHeader.GetPatchInfo();
+
+        long sectionOffset = Header.GetSectionStartOffset(index);
+        long sectionSize = Header.GetSectionSize(index);
+        long bktrOffset = info.RelocationTreeOffset;
+        long bktrSize = sectionSize - bktrOffset;
+
+        byte[] key = GetContentKey(NcaKeyType.AesCtr);
+        byte[] counter = Aes128CtrStorage.CreateCounter(fsHeader.Counter, bktrOffset + sectionOffset);
+
+        IStorage bucketTreeData = new CachedStorage(
+            new Aes128CtrStorage(sectionStorage.Slice(bktrOffset, bktrSize), key, counter, true), 4, true);
+
+        BucketTree.Header treeHeader = new();
+        info.EncryptionTreeHeader.CopyTo(SpanHelpers.AsByteSpan(ref treeHeader));
+        treeHeader.Verify().ThrowIfFailure();
+
+        long nodeStorageSize = AesCtrCounterExtendedStorage.QueryNodeStorageSize(treeHeader.EntryCount);
+        long entryStorageSize = AesCtrCounterExtendedStorage.QueryEntryStorageSize(treeHeader.EntryCount);
+
+        // 그 다음에 cachedBucketTreeData 만들고
+        long encTreeRelOffset = info.EncryptionTreeOffset - bktrOffset;
+        long encTreeSize = sectionSize - info.EncryptionTreeOffset;
+
+        IStorage encryptionBucketTreeData = bucketTreeData.Slice(encTreeRelOffset, encTreeSize);
+        CachedStorage cachedBucketTreeData = new(encryptionBucketTreeData, IndirectStorage.NodeSize, 6, true);
+
+        var tableNodeStorage = new ValueSubStorage(cachedBucketTreeData, 0, nodeStorageSize);
+        var tableEntryStorage = new ValueSubStorage(cachedBucketTreeData, nodeStorageSize, entryStorageSize);
+        var dataStorage = new ValueSubStorage(sectionStorage, 0, info.EncryptionTreeOffset);
+
+        using UniqueRef<AesCtrCounterExtendedStorage.IDecryptor> decryptor = new();
+        AesCtrCounterExtendedStorage.CreateSoftwareDecryptor(ref decryptor.Ref).ThrowIfFailure();
+
+        var extStorage = new AesCtrCounterExtendedStorage();
+
+        NcaAesCtrUpperIv upperIv = new() { Value = fsHeader.Counter };
+
+        extStorage.Initialize(new ArrayPoolMemoryResource(), key, upperIv.SecureValue,
+            0, in dataStorage, in tableNodeStorage, in tableEntryStorage,
+            treeHeader.EntryCount, ref decryptor.Ref).ThrowIfFailure();
+
+        return extStorage;
+    }
+
     public IStorage OpenRawStorage(int index, bool openEncrypted)
     {
         if (Header.IsNca0())

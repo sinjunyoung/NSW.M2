@@ -5,12 +5,11 @@ using LibHac.FsSystem;
 using LibHac.NSZ;
 using LibHac.Tools.Fs;
 using LibHac.Tools.FsSystem;
-using LibHac.Tools.FsSystem.NcaUtils;
 using System;
 using System.IO;
 using Path = System.IO.Path;
 
-namespace NSW.M2.Avalonia.Services;
+namespace NSW.Avalonia.Services;
 
 public static class NspHelper
 {
@@ -36,18 +35,5 @@ public static class NspHelper
             return ncz.BaseStorage.AsStream();
         }
         return stream;
-    }
-
-    public static Stream GetEncodedStream(IFile file, KeySet keySet, int level)
-    {
-        var nca = new Nca(keySet, file.AsStorage());
-        if (nca.Header.ContentType is NcaContentType.Program or NcaContentType.PublicData)
-        {
-            var ms = new MemoryStream();
-            NcaToNczConverter.Convert(file.AsStream(), ms, keySet, level);
-            ms.Position = 0;
-            return ms;
-        }
-        return file.AsStream();
     }
 }

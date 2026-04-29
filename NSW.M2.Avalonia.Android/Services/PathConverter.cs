@@ -108,21 +108,21 @@ public class PathConverter : IPathConverter
             if (uriStr.Contains("/document/"))
             {
                 var docStart = uriStr.LastIndexOf("/document/") + 10;
-                docId = uriStr.Substring(docStart);
+                docId = uriStr[docStart..];
             }
             else
             {
                 var treeStart = uriStr.LastIndexOf("/tree/") + 6;
-                docId = uriStr.Substring(treeStart);
+                docId = uriStr[treeStart..];
             }
 
             docId = global::Android.Net.Uri.Decode(docId);
 
-            if (docId.Contains(":"))
+            if (docId.Contains(':'))
             {
                 var colonIndex = docId.IndexOf(':');
-                var storageId = docId.Substring(0, colonIndex);
-                var relativePath = docId.Substring(colonIndex + 1);
+                var storageId = docId[..colonIndex];
+                var relativePath = docId[(colonIndex + 1)..];
 
                 if (storageId == "primary")
                     return _primaryStoragePath + "/" + relativePath;
@@ -145,7 +145,7 @@ public class PathConverter : IPathConverter
             var id = DocumentsContract.GetDocumentId(uri);
 
             if (id.StartsWith("raw:"))
-                return id.Substring(4);
+                return id[4..];
 
             if (long.TryParse(id, out var numId))
             {
@@ -309,7 +309,7 @@ public class PathConverter : IPathConverter
         return realPath;
     }
 
-    private (string? storageId, string[]? pathParts) ParseStoragePath(string cleanPath)
+    private static (string? storageId, string[]? pathParts) ParseStoragePath(string cleanPath)
     {
         if (cleanPath.StartsWith("storage/emulated/"))
         {

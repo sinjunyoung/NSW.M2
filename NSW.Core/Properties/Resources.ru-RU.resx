@@ -120,14 +120,8 @@
   <data name="Main_Title" xml:space="preserve">
     <value>Инструмент объединения NSW</value>
   </data>
-  <data name="Label_OutputPath" xml:space="preserve">
-    <value>Папка вывода</value>
-  </data>
   <data name="Hint_SelectOutput" xml:space="preserve">
     <value>Выберите папку вывода...</value>
-  </data>
-  <data name="ToolTip_BrowseOutput" xml:space="preserve">
-    <value>Обзор папки вывода</value>
   </data>
   <data name="Button_MergeStart" xml:space="preserve">
     <value>Начать объединение</value>
@@ -169,7 +163,7 @@
     <value>Все файлы</value>
   </data>
   <data name="Status_Analyzing" xml:space="preserve">
-    <value>Анализ...</value>
+    <value>Анализирование...</value>
   </data>
   <data name="Msg_Title_Info" xml:space="preserve">
     <value>Информация</value>
@@ -230,8 +224,7 @@
 ✓ Все задачи завершены. Общее время: {0}</value>
   </data>
   <data name="Main_Msg_Done" xml:space="preserve">
-    <value>Готово!
-{0}</value>
+    <value>Готово! {0}</value>
   </data>
   <data name="Main_Err_NoBase" xml:space="preserve">
     <value>Добавьте файл с базовой игрой.</value>
@@ -286,9 +279,6 @@
   <data name="Log_DecompressAndMerge" xml:space="preserve">
     <value>Распаковка и объединение</value>
   </data>
-  <data name="Log_Merging" xml:space="preserve">
-    <value>Объединение</value>
-  </data>
   <data name="Log_DeleteIncompleteFile" xml:space="preserve">
     <value>Неполный созданный файл удалён.</value>
   </data>
@@ -306,5 +296,89 @@
   </data>
   <data name="Main_Err_NoKeys_Android" xml:space="preserve">
     <value>Файл prod.keys не найден. Поместите файл ключей в папку Download.</value>
+  </data>
+  <data name="Log_CompressAndMerge" xml:space="preserve">
+    <value>  [Сжатие и объединение]</value>
+  </data>
+  <data name="Label_Compression" xml:space="preserve">
+    <value>Сжатие</value>
+  </data>
+  <data name="ToolTip_BrowseOutput" xml:space="preserve">
+    <value>Обзор папки вывода</value>
+  </data>
+  <data name="ToolTip_OpenWorkSpace" xml:space="preserve">
+    <value>Открыть папку вывода</value>
+  </data>
+  <data name="ToolTip_Compress" xml:space="preserve">
+    <value>Сжимать в NSZ при выборе (только объединение)</value>
+  </data>
+  <data name="Main_CompressTitle" xml:space="preserve">
+    <value>Инструмент сжатия NSW</value>
+  </data>
+  <data name="Button_StartCompress" xml:space="preserve">
+    <value>Начать сжатие</value>
+  </data>
+  <data name="Button_StartDecompress" xml:space="preserve">
+    <value>Начать распаковку</value>
+  </data>
+  <data name="Log_ValidationStart" xml:space="preserve">
+    <value>Начало проверки</value>
+  </data>
+  <data name="Log_ValidationComplete" xml:space="preserve">
+    <value>Проверка завершена</value>
+  </data>
+  <data name="Log_Validating" xml:space="preserve">
+    <value>Проверка...</value>
+  </data>
+  <data name="Button_Verify" xml:space="preserve">
+    <value>Проверить</value>
+  </data>
+  <data name="Log_CompressionRatio" xml:space="preserve">
+    <value>Коэффициент сжатия</value>
+  </data>
+  <data name="Log_ModeCompress" xml:space="preserve">
+    <value>Сжатие</value>
+  </data>
+  <data name="Log_ModeDecompress" xml:space="preserve">
+    <value>Распаковка</value>
+  </data>
+  <data name="Log_ProcessStart" xml:space="preserve">
+    <value>Начало</value>
+  </data>
+  <data name="Log_ProcessError" xml:space="preserve">
+    <value>Ошибка обработки</value>
+  </data>
+  <data name="Log_StatusCompressing" xml:space="preserve">
+    <value>Сжатие...</value>
+  </data>
+  <data name="Log_StatusDecompressing" xml:space="preserve">
+    <value>Распаковка...</value>
+  </data>
+  <data name="Log_StatusCopying" xml:space="preserve">
+    <value>Копирование...</value>
+  </data>
+  <data name="Log_StatusVerifying" xml:space="preserve">
+    <value>Проверка...</value>
+  </data>
+  <data name="Log_StatusDone" xml:space="preserve">
+    <value>Готово</value>
+  </data>
+  <data name="Log_Merging" xml:space="preserve">
+    <value>Идёт объединение...</value>
+  </data>
+  <data name="Error_NoCompressFiles" xml:space="preserve">
+    <value>Нет файлов для сжатия.</value>
+  </data>
+  <data name="Error_NoDecompressFiles" xml:space="preserve">
+    <value>Нет файлов для распаковки.</value>
+  </data>
+  <data name="Label_OutputPath" xml:space="preserve">
+    <value>Папка вывода</value>
+  </data>
+  <data name="ToolTip_CompressLevel" xml:space="preserve">
+    <value>3: Максимальная скорость | 9: Сбалансировано | 18: Рекомендуется | 22: Максимальное сжатие</value>
+  </data>
+  <data name="ToolTip_VerifyCompress" xml:space="preserve">
+    <value>Выполняет дополнительную проверку после сжатия</value>
   </data>
 </root>

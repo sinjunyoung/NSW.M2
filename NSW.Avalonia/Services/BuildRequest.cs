@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using NSW.Core.Models;
 
-namespace NSW.M2.Avalonia.Services;
+namespace NSW.Avalonia.Services;
 
 public sealed record BuildRequest(string BaseFilePath, string UpdateFilePath, IReadOnlyList<string> DlcFilePaths, string OutputDir)
 {

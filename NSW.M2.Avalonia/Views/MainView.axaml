@@ -2,11 +2,39 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             xmlns:ui="clr-namespace:NSW.M2.Avalonia.UI;assembly=NSW.M2.Avalonia"
+             xmlns:ui="clr-namespace:NSW.Avalonia.UI;assembly=NSW.Avalonia"
              xmlns:l="clr-namespace:NSW.Core.Properties;assembly=NSW.Core"
+			 xmlns:vm="clr-namespace:NSW.M2.Avalonia.ViewModels"
+			 xmlns:conv="clr-namespace:NSW.Avalonia.Converters;assembly=NSW.Avalonia"
              mc:Ignorable="d" d:DesignWidth="960" d:DesignHeight="720"
              x:Class="NSW.M2.Avalonia.Views.MainView"
+			 x:DataType="vm:MainViewModel"
              FontFamily="Consolas">
+
+		<UserControl.Resources>
+			<conv:LevelToColorConverter x:Key="LevelToColorConverter"/>
+		</UserControl.Resources>
+
+		<UserControl.Styles>
+
+        <!-- ToggleButton 색 -->
+        <Style Selector="ToggleButton#tbVerify:checked">
+            <Setter Property="Background" Value="#334CAF50"/>
+            <Setter Property="BorderBrush" Value="#4CAF50"/>
+        </Style>
+
+        <!-- 체크 시 이미지 변경 -->
+        <Style Selector="ToggleButton#tbVerify:checked Image#imgVerify">
+            <Setter Property="Source" Value="/Assets/Images/Checked.png"/>
+        </Style>
+
+        <!-- 체크 해제 이미지 -->
+        <Style Selector="ToggleButton#tbVerify:not(:checked) Image#imgVerify">
+            <Setter Property="Source" Value="/Assets/Images/Unchecked.png"/>
+        </Style>
+
+    </UserControl.Styles>
+
 	<Grid RowDefinitions="*">
 		<Grid Grid.Row="0" Margin="15,5,15,15">
 			<Grid.RowDefinitions>
@@ -22,8 +50,17 @@
                                    Height="250"
                                    Margin="0,0,0,16"/>
 
-			<Grid Grid.Row="1" Margin="0,0,0,16" ColumnDefinitions="20, Auto, *, Auto">
-				<Image Source="/Assets/Images/WorkSpace.png" Stretch="Uniform" RenderOptions.BitmapInterpolationMode="HighQuality" />
+			<Grid Grid.Row="1" Margin="0,0,0,16" ColumnDefinitions="36, Auto, *, Auto">
+				<Button Grid.Column="0" 
+						x:Name="btnWorkSpace"
+						Width="36" Height="36"
+						Padding="0"
+						Background="Transparent"
+						BorderThickness="0"
+						ToolTip.Tip="{x:Static l:Resources.ToolTip_OpenWorkSpace}"
+						Click="BtnWorkSpace_Click">
+					<Image Source="/Assets/Images/WorkSpace.png" Stretch="Uniform" RenderOptions.BitmapInterpolationMode="HighQuality" />
+				</Button>				
 				<TextBlock Grid.Column="1" Text="{x:Static l:Resources.Label_OutputPath}"
                            FontSize="12"
                            Margin="12,0,12,0"
@@ -65,20 +102,61 @@
 				</Button>
 			</Grid>
 
-			<Grid Grid.Row="2" Margin="0,0,0,10" ColumnDefinitions="*, 10, *">
-				<Button Grid.Column="0" x:Name="btnMergeStart"
-                        Content="{x:Static l:Resources.Button_MergeStart}"
-                        HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-                        HorizontalContentAlignment="Center" VerticalContentAlignment="Center"
-                        Height="44" FontSize="12"
-                        Click="BtnMergeStart_Click"/>
+			<Grid Grid.Row="2" Margin="0,0,0,10" ColumnDefinitions="Auto, 100, Auto, Auto, Auto, 12, *, 10, *">
 
-				<Button Grid.Column="2" x:Name="btnSplitStart"
-                        Content="{x:Static l:Resources.Button_SplitStart}"
-                        HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-                        HorizontalContentAlignment="Center" VerticalContentAlignment="Center"
-                        Height="44" FontSize="12"
-                        Click="BtnSplitStart_Click"/>
+				<Image Grid.Column="0"
+					   Source="/Assets/Images/Level.png"
+					   Stretch="Uniform" Width="32" Margin="0,0,8,0"
+					   RenderOptions.BitmapInterpolationMode="HighQuality" />
+
+				<Slider Grid.Column="1"
+						x:Name="sliderCompression"
+						Minimum="0" Maximum="22"
+						Value="{Binding CompressLevel}"
+						SmallChange="1" LargeChange="1"
+						IsSnapToTickEnabled="True"
+						TickFrequency="1"
+						VerticalAlignment="Center"/>
+
+				<TextBlock Grid.Column="2"
+						   Text="{Binding #sliderCompression.Value}"
+						   Foreground="{Binding #sliderCompression.Value, Converter={StaticResource LevelToColorConverter}}"
+						   FontWeight="Bold"
+						   VerticalAlignment="Center"
+						   Width="25"
+						   Margin="0,0,0,0"
+						   TextAlignment="Center"/>
+
+				<ToggleButton Grid.Column="4"
+							  x:Name="tbVerify"
+							  IsChecked="{Binding VerifyCompress}"
+							  Height="44" Padding="10,0"
+							  Background="#12FFFFFF"
+							  BorderBrush="#30FFFFFF"
+							  BorderThickness="1"
+							  CornerRadius="6"
+							  VerticalAlignment="Stretch">
+
+					<StackPanel Orientation="Horizontal">
+						<Image x:Name="imgVerify"
+							   Width="20" Height="20" Margin="0,0,10,0"/>
+						<TextBlock Text="{x:Static l:Resources.Button_Verify}" VerticalAlignment="Center" FontSize="12"/>
+					</StackPanel>
+				</ToggleButton>
+
+				<Button Grid.Column="6" x:Name="btnMergeStart" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Height="44" FontSize="12" Click="BtnMergeStart_Click">
+					<StackPanel Orientation="Horizontal">
+						<Image x:Name="imgMerge" Width="32" Height="32" Margin="0,0,10,0" VerticalAlignment="Center" RenderOptions.BitmapInterpolationMode="HighQuality"/>
+						<TextBlock x:Name="tbMergeText" Text="Merge" VerticalAlignment="Center"/>
+					</StackPanel>
+				</Button>
+
+				<Button Grid.Column="8" x:Name="btnSplitStart" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Height="44" FontSize="12" Click="BtnSplitStart_Click">
+					<StackPanel Orientation="Horizontal">
+						<Image x:Name="imgSplit" Width="32" Height="32" Margin="0,0,10,0" VerticalAlignment="Center" RenderOptions.BitmapInterpolationMode="HighQuality"/>
+						<TextBlock x:Name="tbSplitText" Text="Split" VerticalAlignment="Center"/>
+					</StackPanel>
+				</Button>
 			</Grid>
 
 			<Grid Grid.Row="3" Margin="0,0,0,10" x:Name="progressArea" IsVisible="False">
@@ -87,23 +165,18 @@
 					<RowDefinition Height="Auto"/>
 				</Grid.RowDefinitions>
 				<Grid Grid.Row="0" Margin="0,0,0,4" ColumnDefinitions="*, Auto">
-					<TextBlock x:Name="progressLabel" Grid.Column="0"
-                               Text="{x:Static l:Resources.Status_Processing}"
-                               FontSize="11" Foreground="#A0A0A0"/>
-					<TextBlock x:Name="progressTime" Grid.Column="1"
-                               FontSize="11" Foreground="#606060"/>
+					<TextBlock x:Name="progressLabel" Grid.Column="0" Text="{x:Static l:Resources.Status_Processing}" FontSize="11" Foreground="#A0A0A0"/>
+					<TextBlock x:Name="progressTime" Grid.Column="1" FontSize="11" Foreground="#606060"/>
 				</Grid>
-				<ProgressBar Grid.Row="1" x:Name="progress"
-                             Minimum="0" Maximum="100" Height="4"/>
+				<ProgressBar Grid.Row="1" x:Name="progress" Minimum="0" Maximum="100" Height="4"/>
 			</Grid>
 
-			<Border Grid.Row="4" Background="#12FFFFFF" BorderBrush="#30FFFFFF"
-                    BorderThickness="1" CornerRadius="8" Padding="2">
-				<TextBox x:Name="logBox"
-                         AcceptsReturn="True" IsReadOnly="True"
-                         FontSize="11"
-                         Foreground="#C8C8C8" Background="Transparent"
-                         BorderThickness="0" Padding="8,6"/>
+			<Border Grid.Row="4" Background="#12FFFFFF" BorderBrush="#30FFFFFF" BorderThickness="1" CornerRadius="8" Padding="2">
+				<ScrollViewer x:Name="svLogBox" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
+					<SelectableTextBlock x:Name="logBox" FontSize="11" Foreground="#C8C8C8"
+										 Background="Transparent" Padding="8,6"
+										 TextWrapping="Wrap"/>
+				</ScrollViewer>
 			</Border>
 		</Grid>
 	</Grid>

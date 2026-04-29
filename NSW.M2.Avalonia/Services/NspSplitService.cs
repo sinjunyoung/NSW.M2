@@ -10,16 +10,18 @@ using LibHac.Tools.FsSystem.NcaUtils;
 using LibHac.Tools.Ncm;
 using System;
 using System.IO;
+using System.Buffers;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using NSW.Core;
 using NSW.Core.Enums;
 using NSW.Core.Models;
-
 using Path = System.IO.Path;
 using Res = NSW.Core.Properties.Resources;
 using System.Text.RegularExpressions;
+using NSW.Avalonia.Services;
+using NSW.Utils;
 
 namespace NSW.M2.Avalonia.Services;
 
@@ -28,7 +30,7 @@ public static class NspSplitService
     public static int Split(string sourceNspPath, string outputDir, IProgress<(int pct, string label)> progress, Action<string, LogLevel> log, CancellationToken ct = default)
     {
         var keySet = KeySetProvider.Instance.KeySet;
-        var allMetas = Utils.GetMetadataFromContainer(keySet, sourceNspPath);
+        var allMetas = Core.Utils.GetMetadataFromContainer(keySet, sourceNspPath);
 
         if (allMetas.Count <= 1)
         {
@@ -36,14 +38,18 @@ public static class NspSplitService
             return 0;
         }
 
-        using var storage = new LocalStorage(sourceNspPath, FileAccess.Read);
-        var fs = NspHelper.OpenFileSystem(sourceNspPath, storage, keySet);
-        var allFiles = new Dictionary<string, IStorage>();
         var disposables = new List<IDisposable>();
+        var allFiles = new Dictionary<string, IStorage>();
         int successCount = 0;
 
         try
         {
+            var storage = new LocalStorage(sourceNspPath, FileAccess.Read);
+            disposables.Add(storage);
+
+            var fs = NspHelper.OpenFileSystem(sourceNspPath, storage, keySet);
+            disposables.Add(fs);
+
             foreach (var entry in fs.EnumerateEntries("/", "*"))
             {
                 var file = new UniqueRef<IFile>();
@@ -53,8 +59,14 @@ public static class NspSplitService
                 allFiles.Add(entry.Name, rawFile.AsStream().AsStorage());
             }
 
-            string cachedBaseTitle = allMetas.FirstOrDefault(m => m.Type == ContentMetaType.Application)?.KrTitle
-                                     ?? allMetas.FirstOrDefault()?.KrTitle;
+            string cachedBaseTitle =
+                allMetas.FirstOrDefault(m => m.Type == ContentMetaType.Application)
+                is { } appMeta
+                ? (!string.IsNullOrEmpty(appMeta.KrTitle) ? appMeta.KrTitle : appMeta.EnTitle)
+                : allMetas.FirstOrDefault()
+                is { } firstMeta
+                ? (!string.IsNullOrEmpty(firstMeta.KrTitle) ? firstMeta.KrTitle : firstMeta.EnTitle)
+                : string.Empty;
 
             foreach (var meta in allMetas)
             {
@@ -63,7 +75,10 @@ public static class NspSplitService
                     successCount++;
             }
         }
-        finally { foreach (var d in disposables) d.Dispose(); }
+        finally
+        {
+            for (int i = disposables.Count - 1; i >= 0; i--) disposables[i]?.Dispose();
+        }
 
         return successCount;
     }
@@ -81,7 +96,7 @@ public static class NspSplitService
             string outName = $"{baseTitle} [{meta.TitleId}] ({typeTag}){versionPart}.nsp";
 
             var invalidChars = Path.GetInvalidFileNameChars()
-                .Concat([':', '*', '?', '"', '<', '>', '|', '\\', '/'])
+                .Concat(['\\', '/', ':'])
                 .Distinct()
                 .ToArray();
 
@@ -101,6 +116,7 @@ public static class NspSplitService
 
             if (!allFiles.ContainsKey(meta.FileName)) return false;
             string cnmtNcaName = meta.FileName;
+
             builder.AddFile(cnmtNcaName, allFiles[cnmtNcaName].AsFile(OpenMode.Read));
 
             using var ncaStorage = new FileStorage(allFiles[cnmtNcaName].AsFile(OpenMode.Read));
@@ -121,9 +137,7 @@ public static class NspSplitService
                 {
                     var file = allFiles[matchName].AsFile(OpenMode.Read);
 
-                    string displayText = string.Empty;                    
-
-                    displayText = $"{baseTitle}/{record.Type}";
+                    string displayText = $"{baseTitle}/{record.Type}";
 
                     if (matchName.EndsWith(".ncz", StringComparison.OrdinalIgnoreCase))
                         displayText = string.Format(Res.Log_SplitDecompressing, displayText);
@@ -137,7 +151,7 @@ public static class NspSplitService
                 }
             }
 
-            WriteNsp(builder, Path.Combine(outputDir, outName), meta.TitleId, typeTag, progress, ct);
+            WriteNsp(builder, Path.Combine(outputDir, outName), meta, typeTag, progress, ct);
 
             string tikStatus = tikName != null ? Res.Status_Tik_O : Res.Status_Tik_X;
             log?.Invoke(string.Format(Res.Log_SplitComplete, outName, tikStatus), LogLevel.Ok);
@@ -151,9 +165,13 @@ public static class NspSplitService
         }
     }
 
-    private static void WriteNsp(PartitionFileSystemBuilder builder, string outPath, string titleId, string typeTag, IProgress<(int pct, string label)> progress, CancellationToken ct)
+    private static void WriteNsp(PartitionFileSystemBuilder builder, string outPath, MetadataResult meta, string typeTag, IProgress<(int pct, string label)> progress, CancellationToken ct)
     {
         bool isCompleted = false;
+        string displayName = NspNameBuilder.DisplayNameBuild(meta.EnTitle, meta.TitleId, meta.DisplayVersion);
+
+        const int bufferSize = 0x800000;
+        byte[] buffer = ArrayPool<byte>.Shared.Rent(bufferSize);
 
         try
         {
@@ -163,14 +181,13 @@ public static class NspSplitService
             using var fout = File.Open(outPath, FileMode.Create, FileAccess.Write);
             using var nspStream = nspStorage.AsStream();
 
-            byte[] buffer = new byte[0x800000];
             long totalRead = 0;
 
             while (totalRead < size)
             {
                 ct.ThrowIfCancellationRequested();
 
-                int toRead = (int)Math.Min(buffer.Length, size - totalRead);
+                int toRead = (int)Math.Min(bufferSize, size - totalRead);
                 int read = nspStream.Read(buffer, 0, toRead);
 
                 if (read <= 0) break;
@@ -178,8 +195,8 @@ public static class NspSplitService
                 fout.Write(buffer, 0, read);
                 totalRead += read;
 
-                var (pct, _, _, _) = Utils.CalculateProgress(totalRead, size, string.Empty);
-                progress?.Report((pct, string.Format(Res.Progress_Splitting, titleId, typeTag)));
+                var (pct, label, _, _) = Common.CalculateProgress(totalRead, size, displayName);
+                progress?.Report((pct, string.Format(Res.Progress_Splitting, label, typeTag)));
             }
 
             fout.Flush();
@@ -191,14 +208,10 @@ public static class NspSplitService
         }
         finally
         {
+            ArrayPool<byte>.Shared.Return(buffer);
+
             if (!isCompleted && File.Exists(outPath))
-            {
-                try
-                {
-                    File.Delete(outPath);
-                }
-                catch {}
-            }
+                try { File.Delete(outPath); } catch { }
         }
     }
 }

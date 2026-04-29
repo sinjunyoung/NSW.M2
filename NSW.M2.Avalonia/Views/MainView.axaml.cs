@@ -1,10 +1,15 @@
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Media;
+using Avalonia.Media.Imaging;
+using Avalonia.Platform;
+using Avalonia.Platform.Storage;
 using Avalonia.Threading;
+using NSW.Avalonia.Services;
+using NSW.Avalonia.UI;
 using NSW.Core.Enums;
 using NSW.M2.Avalonia.Services;
-using NSW.M2.Avalonia.UI;
+using NSW.M2.Avalonia.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -22,6 +27,10 @@ public partial class MainView : UserControl
     private readonly Stopwatch _totalSw = new();
     private CancellationTokenSource? _cts;
 
+    private static readonly Bitmap MergeIcon = new (AssetLoader.Open(new Uri("avares://NSW.M2.Avalonia/Assets/Images/Merge.png")));
+    private static readonly Bitmap SplitIcon = new (AssetLoader.Open(new Uri("avares://NSW.M2.Avalonia/Assets/Images/Split.png")));
+    private static readonly Bitmap CancelIcon = new(AssetLoader.Open(new Uri("avares://NSW.M2.Avalonia/Assets/Images/Cancel.png")));
+
     public MainView()
     {
         InitializeComponent();
@@ -35,16 +44,99 @@ public partial class MainView : UserControl
             txtOutput.Text = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "output");
         else
             txtOutput.Text = Path.Combine("/sdcard/Download", "output");
+                
+        tbMergeText.Text = Res.Button_MergeStart;
+        imgMerge.Source = MergeIcon;
+        tbSplitText.Text = Res.Button_SplitStart;
+        imgSplit.Source = SplitIcon;
+
+        this.AttachedToVisualTree += (s, e) =>
+        {
+            if (DataContext is MainViewModel vm)
+            {
+                var config = AppConfig.Instance;
+                vm.CompressLevel = config.CompressLevel;
+                vm.VerifyCompress = config.VerifyCompress;
+            }
+        };
+
+        this.DetachedFromVisualTree += (s, e) =>
+        {
+            if (DataContext is MainViewModel vm)
+            {
+                var config = AppConfig.Instance;
+                config.CompressLevel = (int)vm.CompressLevel;
+                config.VerifyCompress = vm.VerifyCompress;
+                config.Save();
+            }
+        };
+    }
+
+    protected override void OnDetachedFromVisualTree(VisualTreeAttachmentEventArgs e)
+    {
+        base.OnDetachedFromVisualTree(e);
+
+        if (_cts != null)
+        {
+            _cts.Cancel();
+            _cts.Dispose();
+            _cts = null;
+        }
+    }
+
+    private void BtnWorkSpace_Click(object sender, global::Avalonia.Interactivity.RoutedEventArgs e)
+    {
+        string path = txtOutput.Text?.Trim() ?? string.Empty;
+
+        if (string.IsNullOrEmpty(path) || !Directory.Exists(path))
+            return;
+
+        try
+        {
+            if (OperatingSystem.IsWindows())
+            {
+                Process.Start("explorer.exe", path);
+            }
+            else if (OperatingSystem.IsLinux())
+            {
+                Process.Start(new ProcessStartInfo
+                {
+                    FileName = "xdg-open",
+                    Arguments = path,
+                    CreateNoWindow = true,
+                    UseShellExecute = false
+                });
+            }
+            else if (OperatingSystem.IsMacOS())
+            {
+                Process.Start("open", path);
+            }
+            else if (OperatingSystem.IsAndroid())
+            {
+                
+            }
+        }
+        catch (Exception ex)
+        {
+            Log($"fail: {ex.Message}", LogLevel.Error);
+        }
     }
 
     private async void BtnBrowseOutput_Click(object sender, global::Avalonia.Interactivity.RoutedEventArgs e)
     {
-        var picker = FolderPickerFactory.Create?.Invoke();
+        var topLevel = TopLevel.GetTopLevel(this);
+        if (topLevel == null) return;
 
-        var path = await picker.PickFolderAsync("");
+        var folders = await topLevel.StorageProvider.OpenFolderPickerAsync(new FolderPickerOpenOptions
+        {
+            Title = Res.Hint_SelectOutput,
+            AllowMultiple = false
+        });
 
-        if (!string.IsNullOrEmpty(path))
-            txtOutput.Text = path;
+        if (folders.Count > 0)
+        {
+            txtOutput.Text = folders[0].Path.LocalPath;
+        }
     }
 
     private async void BtnMergeStart_Click(object sender, global::Avalonia.Interactivity.RoutedEventArgs e)
@@ -52,11 +144,11 @@ public partial class MainView : UserControl
         if (_cts != null && !_cts.IsCancellationRequested)
         {
             _cts.Cancel();
-            btnMergeStart.Content = Res.Button_MergeStart;
+            await SetWorking(false, isSplit: false);
             return;
         }
 
-        logBox.Clear();
+        logBox.Inlines?.Clear();
 
         if (!FileManagerControl.KeyExists())
         {
@@ -67,7 +159,7 @@ public partial class MainView : UserControl
 
         if (FileMgr.GameFiles.Any(f => f.IsKeyMissing))
         {
-            SetWorking(true);
+            await SetWorking(true);
             progressLabel.Text = Res.Main_Log_Recalculating;
 
             bool completed = false;
@@ -80,7 +172,7 @@ public partial class MainView : UserControl
         if (!TryGetMergeInputs(out var inputPaths, out var outputDir, out string errorMsg))
         {
             await MessageBoxHelper.ShowWarning(errorMsg);
-            SetWorking(false);
+            await SetWorking(false);
             return;
         }
 
@@ -88,7 +180,7 @@ public partial class MainView : UserControl
             Directory.CreateDirectory(outputDir);
 
         _cts = new CancellationTokenSource();
-        SetWorking(true);
+        await SetWorking(true);
         _totalSw.Restart();
 
         var progressReporter = new Progress<(int pct, string label)>(p =>
@@ -100,11 +192,14 @@ public partial class MainView : UserControl
             });
         });
 
+        bool verify = tbVerify.IsChecked == true;
+        int compressLevel = (int)sliderCompression.Value;
+
         try
         {
             await Task.Run(() =>
             {
-                var results = NspMergeService.Merge(inputPaths, outputDir, false, 3, 17, progressReporter, LogFromService, _cts.Token);
+                var results = NspMergeService.Merge(inputPaths, outputDir, compressLevel, verify, progressReporter, LogFromService, _cts.Token);
 
                 if (results != null && results.Count > 0)
                 {
@@ -129,7 +224,7 @@ public partial class MainView : UserControl
         {
             _cts?.Dispose();
             _cts = null;
-            SetWorking(false);
+            await SetWorking(false);
         }
     }
 
@@ -138,10 +233,11 @@ public partial class MainView : UserControl
         if (_cts != null && !_cts.IsCancellationRequested)
         {
             _cts.Cancel();
+            await SetWorking(false, isSplit: true);
             return;
         }
 
-        logBox.Clear();
+        logBox.Inlines?.Clear();
 
         if (!FileMgr.GameFiles.Any())
         {
@@ -165,7 +261,7 @@ public partial class MainView : UserControl
 
         if (FileMgr.GameFiles.Any(f => f.IsKeyMissing))
         {
-            SetWorking(true, isSplit: true);
+            await SetWorking(true, isSplit: true);
             progressLabel.Text = Res.Main_Log_Recalculating;
 
             bool completed = false;
@@ -179,7 +275,7 @@ public partial class MainView : UserControl
             Directory.CreateDirectory(outputDir);
 
         _cts = new CancellationTokenSource();
-        SetWorking(true, isSplit: true);
+        await SetWorking(true, isSplit: true);
         _totalSw.Restart();
 
         var progressReporter = new Progress<(int pct, string label)>(p =>
@@ -229,7 +325,7 @@ public partial class MainView : UserControl
         {
             _cts?.Dispose();
             _cts = null;
-            SetWorking(false);
+            await SetWorking(false);
         }
     }
 
@@ -266,41 +362,55 @@ public partial class MainView : UserControl
 
     private void Log(string msg, LogLevel level = LogLevel.Info)
     {
-        var color = level switch
-        {
-            LogLevel.Ok => Color.FromRgb(100, 200, 100),
-            LogLevel.Error => Color.FromRgb(255, 80, 80),
-            _ => Color.FromRgb(180, 180, 180),
-        };
+        var color = LogColor.GetColor(level);
 
         Dispatcher.UIThread.Post(() =>
         {
             string timestamp = DateTime.Now.ToString("HH:mm:ss");
-            logBox.Text += $"[{timestamp}] {msg}{Environment.NewLine}";
-            logBox.CaretIndex = logBox.Text?.Length ?? 0;
+            var run = new global::Avalonia.Controls.Documents.Run($"[{timestamp}] {msg}{Environment.NewLine}")
+            {
+                Foreground = new SolidColorBrush(color)
+            };
+            logBox.Inlines ??= [];
+            logBox.Inlines.Add(run);
+
+            svLogBox.ScrollToEnd();
         });
     }
 
-    private void SetWorking(bool working, bool isSplit = false)
+    private async Task SetWorking(bool working, bool isSplit = false)
     {
-        Dispatcher.UIThread.Post(() =>
+        await Dispatcher.UIThread.InvokeAsync(() =>
         {
             if (working)
             {
-                if (isSplit) btnSplitStart.Content = Res.Button_Cancel;
-                else btnMergeStart.Content = Res.Button_Cancel;
+                if (!isSplit)
+                {
+                    tbMergeText.Text = Res.Button_Cancel;
+                    imgMerge.Source = CancelIcon;
+                }
+                else
+                {
+                    tbSplitText.Text = Res.Button_Cancel;
+                    imgSplit.Source = CancelIcon;
+                }
             }
             else
             {
-                btnMergeStart.Content = Res.Button_MergeStart;
-                btnSplitStart.Content = Res.Button_SplitStart;
+                tbMergeText.Text = Res.Button_MergeStart;
+                imgMerge.Source = MergeIcon;
+                tbSplitText.Text = Res.Button_SplitStart;
+                imgSplit.Source = SplitIcon;
             }
 
-            btnMergeStart.IsEnabled = !working || !isSplit;
-            btnSplitStart.IsEnabled = !working || isSplit;
+            btnMergeStart.IsEnabled = !working || (working && !isSplit);
+            btnSplitStart.IsEnabled = !working || (working && isSplit);
 
-            FileMgr.IsEnabled = !working;
+            FileMgr.IsEnabled = !working;               
+            btnWorkSpace.IsEnabled = !working;
             btnBrowseOutput.IsEnabled = !working;
+            sliderCompression.IsEnabled = !working;
+            tbVerify.IsEnabled = !working;
             txtOutput.IsEnabled = !working;
             progressArea.IsVisible = working;
         });

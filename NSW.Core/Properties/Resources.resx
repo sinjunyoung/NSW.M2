@@ -120,14 +120,8 @@
   <data name="Main_Title" xml:space="preserve">
     <value>NSW Merge Tool</value>
   </data>
-  <data name="Label_OutputPath" xml:space="preserve">
-    <value>Output Path</value>
-  </data>
   <data name="Hint_SelectOutput" xml:space="preserve">
     <value>Select the output folder.</value>
-  </data>
-  <data name="ToolTip_BrowseOutput" xml:space="preserve">
-    <value>Select Output Folder</value>
   </data>
   <data name="Button_MergeStart" xml:space="preserve">
     <value>Start Merge</value>
@@ -230,8 +224,7 @@
 ✓ All tasks completed. Total time: {0}</value>
   </data>
   <data name="Main_Msg_Done" xml:space="preserve">
-    <value>Done!
-{0}</value>
+    <value>Done! {0}</value>
   </data>
   <data name="Main_Err_NoBase" xml:space="preserve">
     <value>Please add a file containing the Base game.</value>
@@ -286,9 +279,6 @@
   <data name="Log_DecompressAndMerge" xml:space="preserve">
     <value>Decompressing and merging</value>
   </data>
-  <data name="Log_Merging" xml:space="preserve">
-    <value>Merging</value>
-  </data>
   <data name="Log_DeleteIncompleteFile" xml:space="preserve">
     <value>Incomplete file was deleted.</value>
   </data>
@@ -306,5 +296,89 @@
   </data>
   <data name="Main_Err_NoKeys_Android" xml:space="preserve">
     <value>prod.keys file not found. Please place the key file in the Download folder.</value>
+  </data>
+  <data name="Log_CompressAndMerge" xml:space="preserve">
+    <value>  [Compress &amp; Merge]</value>
+  </data>
+  <data name="Label_Compression" xml:space="preserve">
+    <value>Compression</value>
+  </data>
+  <data name="ToolTip_BrowseOutput" xml:space="preserve">
+    <value>Select Output Folder</value>
+  </data>
+  <data name="ToolTip_OpenWorkSpace" xml:space="preserve">
+    <value>Open Output Folder</value>
+  </data>
+  <data name="ToolTip_Compress" xml:space="preserve">
+    <value>Compress to NSZ when checked (merge only)</value>
+  </data>
+  <data name="Main_CompressTitle" xml:space="preserve">
+    <value>NSW Compression Tool</value>
+  </data>
+  <data name="Button_StartCompress" xml:space="preserve">
+    <value>Start Compression</value>
+  </data>
+  <data name="Button_StartDecompress" xml:space="preserve">
+    <value>Start Decompression</value>
+  </data>
+  <data name="Log_ValidationStart" xml:space="preserve">
+    <value>Validation starting</value>
+  </data>
+  <data name="Log_ValidationComplete" xml:space="preserve">
+    <value>Validation complete</value>
+  </data>
+  <data name="Log_Validating" xml:space="preserve">
+    <value>Validating...</value>
+  </data>
+  <data name="Button_Verify" xml:space="preserve">
+    <value>Verify</value>
+  </data>
+  <data name="Log_CompressionRatio" xml:space="preserve">
+    <value>Compression ratio</value>
+  </data>
+  <data name="Log_ModeCompress" xml:space="preserve">
+    <value>Compress</value>
+  </data>
+  <data name="Log_ModeDecompress" xml:space="preserve">
+    <value>Decompress</value>
+  </data>
+  <data name="Log_ProcessStart" xml:space="preserve">
+    <value>Start</value>
+  </data>
+  <data name="Log_ProcessError" xml:space="preserve">
+    <value>Error processing</value>
+  </data>
+  <data name="Log_StatusCompressing" xml:space="preserve">
+    <value>Compressing...</value>
+  </data>
+  <data name="Log_StatusDecompressing" xml:space="preserve">
+    <value>Decompressing...</value>
+  </data>
+  <data name="Log_StatusCopying" xml:space="preserve">
+    <value>Copying...</value>
+  </data>
+  <data name="Log_StatusVerifying" xml:space="preserve">
+    <value>Verifying...</value>
+  </data>
+  <data name="Log_StatusDone" xml:space="preserve">
+    <value>Done</value>
+  </data>
+  <data name="Log_Merging" xml:space="preserve">
+    <value>Merging...</value>
+  </data>
+  <data name="Error_NoCompressFiles" xml:space="preserve">
+    <value>No files to compress.</value>
+  </data>
+  <data name="Error_NoDecompressFiles" xml:space="preserve">
+    <value>No files to decompress.</value>
+  </data>
+  <data name="Label_OutputPath" xml:space="preserve">
+    <value>Output Path</value>
+  </data>
+  <data name="ToolTip_CompressLevel" xml:space="preserve">
+    <value>3: Fastest | 9: Balanced | 18: Recommended | 22: Maximum compression</value>
+  </data>
+  <data name="ToolTip_VerifyCompress" xml:space="preserve">
+    <value>Runs an additional verification after compression</value>
   </data>
 </root>

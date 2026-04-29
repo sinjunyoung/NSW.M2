@@ -1,15 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Security.Cryptography;
-using LibHac.Boot;
+﻿using LibHac.Boot;
 using LibHac.Common.FixedArrays;
 using LibHac.Crypto;
 using LibHac.FsSrv;
+using LibHac.FsSrv.Impl;
 using LibHac.Util;
+using System;
+using System.Collections.Generic;
+using System.Security.Cryptography;
 
 namespace LibHac.Common.Keys;
 
-public class KeySet
+public class KeySet: ICloneable
 {
     public enum Mode
     {
@@ -279,6 +280,22 @@ public class KeySet
             P = key.P[..].ToArray(),
             Q = key.Q[..].ToArray()
         };
+    }
+
+    public KeySet Clone()
+    {
+        var newKeySet = new KeySet
+        {
+            KeyStruct = this.KeyStruct
+        };
+        newKeySet.SetMode(this.CurrentMode);
+
+        return newKeySet;
+    }
+
+    object ICloneable.Clone()
+    {
+        return Clone();
     }
 
     private struct RsaSigningKeyParameters

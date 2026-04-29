@@ -1,7 +1,7 @@
 ﻿using NSW.Core.Models;
 using System.Collections.Generic;
 
-namespace NSW.M2.Avalonia.Models;
+namespace NSW.Avalonia.Models;
 
 public sealed class TitleGroup(string baseTitleId)
 {

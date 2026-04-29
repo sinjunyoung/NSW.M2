@@ -1,18 +1,17 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
+
   <PropertyGroup>
-    <VersionPrefix>2.0.0.1</VersionPrefix>
+    <VersionPrefix>0.0.0.1</VersionPrefix>
     <TargetFramework>net8.0</TargetFramework>
     <Nullable>enable</Nullable>
     <LangVersion>latest</LangVersion>
     <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <NoWarn>CS8600;CS8601;CS8602;CS8603;CS8604;CS8618;CS8629;SYSLIB1045</NoWarn>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <NoWarn>CS8600;CS8601;CS8602;CS8603;CS8604;CS8618;CS8629;SYSLIB1045</NoWarn>
-  </PropertyGroup>
-  
+
+  <PropertyGroup>
+    <Authors>YameSoft</Authors>
+    <Copyright>Copyright © 2026 YameSoft</Copyright>  </PropertyGroup>
+
   <ItemGroup>
     <AvaloniaResource Include="Assets\**" />
   </ItemGroup>
@@ -33,7 +32,31 @@
 
   <ItemGroup>
     <ProjectReference Include="..\LibHac\LibHac.csproj" />
-    <ProjectReference Include="..\NSW.Avalonia\NSW.Avalonia.csproj" />
     <ProjectReference Include="..\NSW.Core\NSW.Core.csproj" />
+    <ProjectReference Include="..\NSW.Utils\NSW.Utils.csproj" />
   </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Properties\Resources.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Update="Properties\Resources.resx">
+      <Generator>PublicResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <NoWarn>1701;1702;SYSLIB1045;CS8600;CS8601;CS8618;CS8625</NoWarn>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <NoWarn>1701;1702;SYSLIB1045;CS8600;CS8601;CS8618;CS8625</NoWarn>
+  </PropertyGroup>
+
 </Project>

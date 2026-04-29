@@ -120,14 +120,8 @@
   <data name="Main_Title" xml:space="preserve">
     <value>NSW Merge Tool</value>
   </data>
-  <data name="Label_OutputPath" xml:space="preserve">
-    <value>Ausgabeordner</value>
-  </data>
   <data name="Hint_SelectOutput" xml:space="preserve">
     <value>Wählen Sie den Ausgabeordner aus.</value>
-  </data>
-  <data name="ToolTip_BrowseOutput" xml:space="preserve">
-    <value>Ausgabeordner auswählen</value>
   </data>
   <data name="Button_MergeStart" xml:space="preserve">
     <value>Merge starten</value>
@@ -230,8 +224,7 @@
 ✓ Alle Aufgaben abgeschlossen. Gesamtzeit: {0}</value>
   </data>
   <data name="Main_Msg_Done" xml:space="preserve">
-    <value>Fertig!
-{0}</value>
+    <value>Fertig! {0}</value>
   </data>
   <data name="Main_Err_NoBase" xml:space="preserve">
     <value>Bitte fügen Sie eine Datei mit dem Basisspiel hinzu.</value>
@@ -286,9 +279,6 @@
   <data name="Log_DecompressAndMerge" xml:space="preserve">
     <value>Dekomprimieren und Zusammenführen</value>
   </data>
-  <data name="Log_Merging" xml:space="preserve">
-    <value>Zusammenführen</value>
-  </data>
   <data name="Log_DeleteIncompleteFile" xml:space="preserve">
     <value>Unvollständig erstellte Datei wurde gelöscht.</value>
   </data>
@@ -306,5 +296,89 @@
   </data>
   <data name="Main_Err_NoKeys_Android" xml:space="preserve">
     <value>Die Datei „prod.keys" wurde nicht gefunden. Bitte legen Sie die Schlüsseldatei im Download-Ordner ab.</value>
+  </data>
+  <data name="Log_CompressAndMerge" xml:space="preserve">
+    <value>  [Komprimieren &amp; Zusammenführen]</value>
+  </data>
+  <data name="Label_Compression" xml:space="preserve">
+    <value>Komprimierung</value>
+  </data>
+  <data name="ToolTip_BrowseOutput" xml:space="preserve">
+    <value>Ausgabeordner auswählen</value>
+  </data>
+  <data name="ToolTip_OpenWorkSpace" xml:space="preserve">
+    <value>Ausgabeordner öffnen</value>
+  </data>
+  <data name="ToolTip_Compress" xml:space="preserve">
+    <value>NSZ komprimieren, wenn aktiviert (nur Zusammenführen)</value>
+  </data>
+  <data name="Main_CompressTitle" xml:space="preserve">
+    <value>NSW-Komprimierungstool</value>
+  </data>
+  <data name="Button_StartCompress" xml:space="preserve">
+    <value>Komprimierung starten</value>
+  </data>
+  <data name="Button_StartDecompress" xml:space="preserve">
+    <value>Dekomprimierung starten</value>
+  </data>
+  <data name="Log_ValidationStart" xml:space="preserve">
+    <value>Validierung wird gestartet</value>
+  </data>
+  <data name="Log_ValidationComplete" xml:space="preserve">
+    <value>Validierung abgeschlossen</value>
+  </data>
+  <data name="Log_Validating" xml:space="preserve">
+    <value>Wird überprüft...</value>
+  </data>
+  <data name="Button_Verify" xml:space="preserve">
+    <value>Überprüfen</value>
+  </data>
+  <data name="Log_CompressionRatio" xml:space="preserve">
+    <value>Kompressionsrate</value>
+  </data>
+  <data name="Log_ModeCompress" xml:space="preserve">
+    <value>Komprimieren</value>
+  </data>
+  <data name="Log_ModeDecompress" xml:space="preserve">
+    <value>Dekomprimieren</value>
+  </data>
+  <data name="Log_ProcessStart" xml:space="preserve">
+    <value>Start</value>
+  </data>
+  <data name="Log_ProcessError" xml:space="preserve">
+    <value>Fehler bei Verarbeitung</value>
+  </data>
+  <data name="Log_StatusCompressing" xml:space="preserve">
+    <value>Komprimiere...</value>
+  </data>
+  <data name="Log_StatusDecompressing" xml:space="preserve">
+    <value>Dekomprimiere...</value>
+  </data>
+  <data name="Log_StatusCopying" xml:space="preserve">
+    <value>Kopieren...</value>
+  </data>
+  <data name="Log_StatusVerifying" xml:space="preserve">
+    <value>Uberprufung...</value>
+  </data>
+  <data name="Log_StatusDone" xml:space="preserve">
+    <value>Fertig</value>
+  </data>
+  <data name="Log_Merging" xml:space="preserve">
+    <value>Zusammenführen...</value>
+  </data>
+  <data name="Error_NoCompressFiles" xml:space="preserve">
+    <value>Keine Dateien zum Komprimieren vorhanden.</value>
+  </data>
+  <data name="Error_NoDecompressFiles" xml:space="preserve">
+    <value>Keine Dateien zum Dekomprimieren vorhanden.</value>
+  </data>
+  <data name="Label_OutputPath" xml:space="preserve">
+    <value>Ausgabeordner</value>
+  </data>
+  <data name="ToolTip_CompressLevel" xml:space="preserve">
+    <value>3: Am schnellsten | 9: Ausgewogen | 18: Empfohlen | 22: Maximale Komprimierung</value>
+  </data>
+  <data name="ToolTip_VerifyCompress" xml:space="preserve">
+    <value>Führt nach der Komprimierung eine zusätzliche Überprüfung durch</value>
   </data>
 </root>

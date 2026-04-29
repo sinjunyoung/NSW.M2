@@ -7,7 +7,7 @@ namespace LibHac.NSZ;
 /// The raw structure of an NCZ section header
 /// </summary>
 [StructLayout(LayoutKind.Sequential)]
-public struct NczSectionRaw
+public unsafe struct NczSectionRaw
 {
     public long Offset;
 

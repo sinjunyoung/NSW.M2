@@ -1,13 +1,15 @@
-﻿using System;
-using System.Buffers.Binary;
-using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
-using LibHac.Common;
+﻿using LibHac.Common;
 using LibHac.Common.FixedArrays;
 using LibHac.Crypto;
 using LibHac.Diag;
 using LibHac.Fs;
 using LibHac.Util;
+using System;
+using System.Buffers.Binary;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 
 namespace LibHac.FsSystem;
 
@@ -416,6 +418,42 @@ public class AesCtrCounterExtendedStorage : IStorage
                 return ResultFs.UnsupportedOperateRangeForAesCtrCounterExtendedStorage.Log();
         }
     }
+
+    public Result ReadAllEntries(out AesCtrCounterExtendedStorage.Entry[] entries)
+    {
+        UnsafeHelpers.SkipParamInit(out entries);
+
+        if (_table.IsEmpty())
+        {
+            entries = [];
+            return Result.Success;
+        }
+
+        Result res = _table.GetOffsets(out BucketTree.Offsets offsets);
+        if (res.IsFailure()) return res.Miss();
+
+        var result = new List<Entry>();
+
+        using BucketTree.Visitor visitor = new();
+        res = _table.Find(ref visitor.Ref, offsets.StartOffset);
+        if (res.IsFailure()) return res.Miss();
+
+        result.Add(visitor.Get<Entry>());
+
+        while (visitor.CanMoveNext())
+        {
+            res = visitor.MoveNext();
+            if (res.IsFailure()) return res.Miss();
+            result.Add(visitor.Get<Entry>());
+        }
+
+        entries = [.. result];
+        return Result.Success;
+    }
+
+    public uint GetSecureValue() => _secureValue;
+    public long GetCounterOffset() => _counterOffset;
+    public ReadOnlySpan<byte> GetKey() => _key;
 
     private class ExternalDecryptor : IDecryptor
     {

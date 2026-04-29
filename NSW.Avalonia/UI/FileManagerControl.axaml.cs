@@ -3,9 +3,8 @@ using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Platform.Storage;
 using Avalonia.Threading;
+using NSW.Avalonia.ViewModels;
 using NSW.Core;
-using NSW.M2.Avalonia.Services;
-using NSW.M2.Avalonia.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -13,13 +12,13 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-
 using Res = NSW.Core.Properties.Resources;
 
-namespace NSW.M2.Avalonia.UI;
+namespace NSW.Avalonia.UI;
 
 public partial class FileManagerControl : UserControl
-{    public Button ExtraButton => btnExtra;
+{
+    public Button ExtraButton => btnExtra;
     public Action? ExtraButtonClicked;
 
     public ObservableCollection<GameFile> GameFiles { get; set; } = [];
@@ -53,7 +52,7 @@ public partial class FileManagerControl : UserControl
             string capturedPath = vm.FilePath;
             Task.Run(() =>
             {
-                string result = Utils.DetectFileType(capturedPath, keySet);
+                string result = Core.Utils.DetectFileType(capturedPath, keySet);
                 Dispatcher.UIThread.InvokeAsync(() =>
                 {
                     vm.FileType = result;
@@ -76,14 +75,31 @@ public partial class FileManagerControl : UserControl
 
     private async void BtnAddFile_Click(object sender, RoutedEventArgs e)
     {
-        var filters = new List<FilePickerFileType>
-        {
-            new(Res.Filter_SwitchFiles) { Patterns = ["*.nsp", "*.xci", "*.nsz", "*.xcz"] },
-            new(Res.Filter_AllFiles) { Patterns = ["*.*"] }
-        };
+        var topLevel = TopLevel.GetTopLevel(this);
+        if (topLevel == null) return;
 
-        var paths = await DialogHelper.OpenFilesAsync(string.Empty, filters);
-        AddFiles(paths);
+        var files = await topLevel.StorageProvider.OpenFilePickerAsync(new FilePickerOpenOptions
+        {
+            Title = Res.Dialog_SelectGameFile,
+            AllowMultiple = true,
+            FileTypeFilter =
+            [
+            new FilePickerFileType(Res.Filter_SwitchFiles)
+            {
+                Patterns = ["*.nsp", "*.xci", "*.nsz", "*.xcz"]
+            },
+            new FilePickerFileType(Res.Filter_AllFiles)
+            {
+                Patterns = ["*.*"]
+            }
+        ]
+        });
+
+        if (files.Count > 0)
+        {
+            var fileNames = files.Select(f => f.Path.LocalPath).ToArray();
+            AddFiles(fileNames);
+        }
     }
 
     private void BtnRemoveFile_Click(object sender, RoutedEventArgs e)
@@ -161,7 +177,7 @@ public partial class FileManagerControl : UserControl
                 string capturedPath = path;
                 await Task.Run(async () =>
                 {
-                    string result = Utils.DetectFileType(capturedPath, keySet);
+                    string result = Core.Utils.DetectFileType(capturedPath, keySet);
                     await Dispatcher.UIThread.InvokeAsync(() => vm.FileType = result);
                 });
             }

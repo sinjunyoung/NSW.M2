@@ -4,7 +4,7 @@ using MsBox.Avalonia.Enums;
 using System.Threading.Tasks;
 using Res = NSW.Core.Properties.Resources;
 
-namespace NSW.M2.Avalonia.UI;
+namespace NSW.Avalonia.UI;
 
 public static class MessageBoxHelper
 {

@@ -120,14 +120,8 @@
   <data name="Main_Title" xml:space="preserve">
     <value>NSW Merge Tool</value>
   </data>
-  <data name="Label_OutputPath" xml:space="preserve">
-    <value>出力フォルダー</value>
-  </data>
   <data name="Hint_SelectOutput" xml:space="preserve">
     <value>出力フォルダーを選択してください。</value>
-  </data>
-  <data name="ToolTip_BrowseOutput" xml:space="preserve">
-    <value>出力フォルダーを選択します</value>
   </data>
   <data name="Button_MergeStart" xml:space="preserve">
     <value>マージ開始</value>
@@ -230,8 +224,7 @@
 ✓ すべてのタスクが完了しました。合計時間: {0}</value>
   </data>
   <data name="Main_Msg_Done" xml:space="preserve">
-    <value>完了しました！
-{0}</value>
+    <value>完了しました！ {0}</value>
   </data>
   <data name="Main_Err_NoBase" xml:space="preserve">
     <value>ベースゲームを含むファイルを追加してください。</value>
@@ -286,9 +279,6 @@
   <data name="Log_DecompressAndMerge" xml:space="preserve">
     <value>解凍およびマージ中</value>
   </data>
-  <data name="Log_Merging" xml:space="preserve">
-    <value>マージ中</value>
-  </data>
   <data name="Log_DeleteIncompleteFile" xml:space="preserve">
     <value>不完全に生成されたファイルを削除しました。</value>
   </data>
@@ -306,5 +296,89 @@
   </data>
   <data name="Main_Err_NoKeys_Android" xml:space="preserve">
     <value>prod.keys ファイルが見つかりません。キー ファイルを Download フォルダーに配置してください。</value>
+  </data>
+  <data name="Log_CompressAndMerge" xml:space="preserve">
+    <value>  [圧縮してマージ中]</value>
+  </data>
+  <data name="Label_Compression" xml:space="preserve">
+    <value>圧縮</value>
+  </data>
+  <data name="ToolTip_BrowseOutput" xml:space="preserve">
+    <value>出力フォルダーを選択します</value>
+  </data>
+  <data name="ToolTip_OpenWorkSpace" xml:space="preserve">
+    <value>出力フォルダーを開きます</value>
+  </data>
+  <data name="ToolTip_Compress" xml:space="preserve">
+    <value>チェック時にNSZへ圧縮します（結合のみ）</value>
+  </data>
+  <data name="Main_CompressTitle" xml:space="preserve">
+    <value>NSW圧縮ツール</value>
+  </data>
+  <data name="Button_StartCompress" xml:space="preserve">
+    <value>圧縮開始</value>
+  </data>
+  <data name="Button_StartDecompress" xml:space="preserve">
+    <value>解凍開始</value>
+  </data>
+  <data name="Log_ValidationStart" xml:space="preserve">
+    <value>検証開始</value>
+  </data>
+  <data name="Log_ValidationComplete" xml:space="preserve">
+    <value>検証完了</value>
+  </data>
+  <data name="Log_Validating" xml:space="preserve">
+    <value>検証中...</value>
+  </data>
+  <data name="Button_Verify" xml:space="preserve">
+    <value>検証</value>
+  </data>
+  <data name="Log_CompressionRatio" xml:space="preserve">
+    <value>圧縮率</value>
+  </data>
+  <data name="Log_ModeCompress" xml:space="preserve">
+    <value>圧縮</value>
+  </data>
+  <data name="Log_ModeDecompress" xml:space="preserve">
+    <value>解凍</value>
+  </data>
+  <data name="Log_ProcessStart" xml:space="preserve">
+    <value>開始</value>
+  </data>
+  <data name="Log_ProcessError" xml:space="preserve">
+    <value>処理エラー</value>
+  </data>
+  <data name="Log_StatusCompressing" xml:space="preserve">
+    <value>圧縮中...</value>
+  </data>
+  <data name="Log_StatusDecompressing" xml:space="preserve">
+    <value>解凍中...</value>
+  </data>
+  <data name="Log_StatusCopying" xml:space="preserve">
+    <value>コピー中...</value>
+  </data>
+  <data name="Log_StatusVerifying" xml:space="preserve">
+    <value>検証中...</value>
+  </data>
+  <data name="Log_StatusDone" xml:space="preserve">
+    <value>完了</value>
+  </data>
+  <data name="Log_Merging" xml:space="preserve">
+    <value>マージ中...</value>
+  </data>
+  <data name="Error_NoCompressFiles" xml:space="preserve">
+    <value>圧縮するファイルがありません。</value>
+  </data>
+  <data name="Error_NoDecompressFiles" xml:space="preserve">
+    <value>解凍するファイルがありません。</value>
+  </data>
+  <data name="Label_OutputPath" xml:space="preserve">
+    <value>出力フォルダー</value>
+  </data>
+  <data name="ToolTip_CompressLevel" xml:space="preserve">
+    <value>3: 最速 | 9: バランス | 18: 推奨 | 22: 最大圧縮</value>
+  </data>
+  <data name="ToolTip_VerifyCompress" xml:space="preserve">
+    <value>圧縮後に追加の検証を実行します</value>
   </data>
 </root>

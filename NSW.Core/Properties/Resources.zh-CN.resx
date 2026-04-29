@@ -120,14 +120,8 @@
   <data name="Main_Title" xml:space="preserve">
     <value>NSW 合并工具</value>
   </data>
-  <data name="Label_OutputPath" xml:space="preserve">
-    <value>输出文件夹</value>
-  </data>
   <data name="Hint_SelectOutput" xml:space="preserve">
     <value>请选择输出文件夹。</value>
-  </data>
-  <data name="ToolTip_BrowseOutput" xml:space="preserve">
-    <value>选择输出文件夹</value>
   </data>
   <data name="Button_MergeStart" xml:space="preserve">
     <value>开始合并</value>
@@ -230,8 +224,7 @@
 ✓ 所有任务已完成。总耗时: {0}</value>
   </data>
   <data name="Main_Msg_Done" xml:space="preserve">
-    <value>完成！
-{0}</value>
+    <value>完成！ {0}</value>
   </data>
   <data name="Main_Err_NoBase" xml:space="preserve">
     <value>请添加包含基础游戏的文件。</value>
@@ -286,9 +279,6 @@
   <data name="Log_DecompressAndMerge" xml:space="preserve">
     <value>正在解压并合并</value>
   </data>
-  <data name="Log_Merging" xml:space="preserve">
-    <value>正在合并</value>
-  </data>
   <data name="Log_DeleteIncompleteFile" xml:space="preserve">
     <value>已删除未完整生成的文件。</value>
   </data>
@@ -306,5 +296,90 @@
   </data>
   <data name="Main_Err_NoKeys_Android" xml:space="preserve">
     <value>未找到 prod.keys 文件。请将密钥文件放入 Download 文件夹中。</value>
+  </data>
+  <data name="Log_CompressAndMerge" xml:space="preserve">
+    <value>  [压缩并合并中]</value>
+  </data>
+  <data name="Label_Compression" xml:space="preserve">
+    <value>压缩</value>
+  </data>
+  <data name="ToolTip_BrowseOutput" xml:space="preserve">
+    <value>浏览输出文件夹</value>
+  </data>
+  <data name="ToolTip_OpenWorkSpace" xml:space="preserve">
+    <value>打开输出文件夹</value>
+  </data>
+  <data name="ToolTip_Compress" xml:space="preserve">
+    <value>勾选时压缩为NSZ（仅合并）</value>
+  </data>
+  <data name="Main_CompressTitle" xml:space="preserve">
+    <value>NSW 压缩工具</value>
+  </data>
+  <data name="Button_StartCompress" xml:space="preserve">
+    <value>开始压缩</value>
+  </data>
+  <data name="Button_StartDecompress" xml:space="preserve">
+    <value>开始解压</value>
+  </data>
+  <data name="Log_ValidationStart" xml:space="preserve">
+    <value>开始验证</value>
+  </data>
+  <data name="Log_ValidationComplete" xml:space="preserve">
+    <value>验证完成</value>
+  </data>
+  <data name="Log_Validating" xml:space="preserve">
+    <value>正在验证...</value>
+  </data>
+  <data name="Button_Verify" xml:space="preserve">
+    <value>验证</value>
+  </data>
+  <data name="Log_CompressionRatio" xml:space="preserve">
+    <value>压缩率</value>
+  </data>
+  <data name="Log_ModeCompress" xml:space="preserve">
+    <value>压缩</value>
+  </data>
+  <data name="Log_ModeDecompress" xml:space="preserve">
+    <value>解压</value>
+  </data>
+  <data name="Log_ProcessStart" xml:space="preserve">
+    <value>开始</value>
+  </data>
+  <data name="Log_ProcessError" xml:space="preserve">
+    <value>处理错误</value>
+  </data>
+  <data name="Log_StatusCompressing" xml:space="preserve">
+    <value>压缩中...</value>
+  </data>
+  <data name="Log_StatusDecompressing" xml:space="preserve">
+    <value>解压中...</value>
+  </data>
+  <data name="Log_StatusCopying" xml:space="preserve">
+    <value>复制中...</value>
+  </data>
+  <data name="Log_StatusVerifying" xml:space="preserve">
+    <value>验证中...</value>
+  </data>
+  <data name="Log_StatusDone" xml:space="preserve">
+    <value>完成</value>
+  </data>
+  <data name="Log_Merging" xml:space="preserve">
+    <value>正在合并...
+</value>
+  </data>
+  <data name="Error_NoCompressFiles" xml:space="preserve">
+    <value>没有可压缩的文件。</value>
+  </data>
+  <data name="Error_NoDecompressFiles" xml:space="preserve">
+    <value>没有可解压的文件。</value>
+  </data>
+  <data name="Label_OutputPath" xml:space="preserve">
+    <value>输出文件夹</value>
+  </data>
+  <data name="ToolTip_CompressLevel" xml:space="preserve">
+    <value>3：最快 | 9：平衡 | 18：推荐 | 22：最大压缩</value>
+  </data>
+  <data name="ToolTip_VerifyCompress" xml:space="preserve">
+    <value>压缩后执行额外验证</value>
   </data>
 </root>

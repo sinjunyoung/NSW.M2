@@ -1,13 +1,13 @@
-using System;
+using Avalonia.Media;
+using NSW.Core;
+using NSW.Utils;
+using ReactiveUI;
 using System.ComponentModel;
 using System.IO;
-using System.Runtime.CompilerServices;
-using Avalonia.Media;
-using ReactiveUI;
 
-namespace NSW.M2.Avalonia.ViewModels;
+namespace NSW.Avalonia.ViewModels;
 
-public class GameFile(string filePath) : ReactiveUI.ReactiveObject, INotifyPropertyChanged
+public class GameFile(string filePath) : ReactiveObject, INotifyPropertyChanged
 {
     private string _fileType = Core.Properties.Resources.Status_Analyzing;
 
@@ -23,10 +23,7 @@ public class GameFile(string filePath) : ReactiveUI.ReactiveObject, INotifyPrope
             {
                 var info = new FileInfo(FilePath);
                 if (!info.Exists) return "-";
-                long bytes = info.Length;
-                if (bytes >= 1_073_741_824) return $"{bytes / 1_073_741_824.0:F1} GB";
-                if (bytes >= 1_048_576) return $"{bytes / 1_048_576.0:F1} MB";
-                return $"{bytes / 1024.0:F1} KB";
+                return Common.FormatFileSize(info.Length);
             }
             catch { return "-"; }
         }

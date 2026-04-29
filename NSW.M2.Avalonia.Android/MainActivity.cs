@@ -58,7 +58,7 @@ public class MainActivity : AvaloniaMainActivity<App>
         }
         else
         {
-            string[] permissions = { Manifest.Permission.ReadExternalStorage, Manifest.Permission.WriteExternalStorage };
+            string[] permissions = [ Manifest.Permission.ReadExternalStorage, Manifest.Permission.WriteExternalStorage ];
             if (CheckSelfPermission(Manifest.Permission.ReadExternalStorage) != Permission.Granted)
             {
                 RequestPermissions(permissions, 1000);

@@ -1,4 +1,5 @@
-﻿using LibHac.Common;
+﻿using DynamicData;
+using LibHac.Common;
 using LibHac.Common.Keys;
 using LibHac.Fs;
 using LibHac.Fs.Fsa;
@@ -9,17 +10,18 @@ using LibHac.Tools.Es;
 using LibHac.Tools.Fs;
 using LibHac.Tools.FsSystem;
 using LibHac.Tools.FsSystem.NcaUtils;
-using NSW.M2.Avalonia.Models;
-using System;
-using System.IO;
-using System.Linq;
-using System.Collections.Generic;
-using System.Threading;
+using NSW.Avalonia.Models;
+using NSW.Avalonia.Services;
 using NSW.Core;
 using NSW.Core.Enums;
 using NSW.Core.Models;
-using NSW.Core.Services;
-
+using NSW.Utils;
+using System;
+using System.Buffers;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Threading;
 using Path = System.IO.Path;
 using Res = NSW.Core.Properties.Resources;
 
@@ -27,12 +29,12 @@ namespace NSW.M2.Avalonia.Services;
 
 public static class NspMergeService
 {
-    public static List<string> Merge(IReadOnlyList<string> inputPaths, string outputDir, bool compressToNcz, int nczCompressionLevel, byte nczBlockSizeExponent, IProgress<(int pct, string label)> progress, Action<string, LogLevel> log, CancellationToken ct = default)
+    public static List<string> Merge(IReadOnlyList<string> inputPaths, string outputDir, int nczCompressionLevel, bool verify, IProgress<(int pct, string label)> progress, Action<string, LogLevel> log, CancellationToken ct = default)
     {
-        return RunMergeAll(inputPaths, outputDir, compressToNcz, nczCompressionLevel, nczBlockSizeExponent, KeySetProvider.Instance.KeySet, progress, log, ct);
+        return RunMergeAll(inputPaths, outputDir, nczCompressionLevel > 0, nczCompressionLevel, verify, KeySetProvider.Instance.KeySet.Clone(), progress, log, ct);
     }
 
-    public static List<string> RunMergeAll(IReadOnlyList<string> inputPaths, string outputDir, bool compressToNcz, int nczCompressionLevel, byte nczBlockSizeExponent, KeySet ks, IProgress<(int pct, string label)> progress, Action<string, LogLevel> log, CancellationToken ct = default)
+    public static List<string> RunMergeAll(IReadOnlyList<string> inputPaths, string outputDir, bool compressToNcz, int nczCompressionLevel, bool verify, KeySet ks, IProgress<(int pct, string label)> progress, Action<string, LogLevel> log, CancellationToken ct = default)
     {
         log?.Invoke(Res.Log_AnalyzeMetadata, LogLevel.Info);
 
@@ -40,7 +42,7 @@ public static class NspMergeService
         foreach (var path in inputPaths)
         {
             ct.ThrowIfCancellationRequested();
-            allMeta.AddRange(Utils.GetMetadataFromContainer(ks, path));
+            allMeta.AddRange(Core.Utils.GetMetadataFromContainer(ks, path));
         }
 
         if (allMeta.Count == 0)
@@ -85,7 +87,6 @@ public static class NspMergeService
             {
                 CompressToNcz = compressToNcz,
                 NczCompressionLevel = nczCompressionLevel,
-                NczBlockSizeExponent = nczBlockSizeExponent,
                 AllSourcePaths = allSources,
                 TargetBaseTitleId = group.BaseTitleId,
                 AllowedNcaIds = allowedNcaIds,
@@ -99,7 +100,7 @@ public static class NspMergeService
 
             try
             {
-                results.Add(RunMergeProcess(req, ks, progress, log, ct));
+                results.Add(RunMergeProcess(req, ks, verify, progress, log, ct));
             }
             catch (Exception ex)
             {
@@ -169,30 +170,38 @@ public static class NspMergeService
         foreach (var id in meta.ContentNcaIds) set.Add(id);
     }
 
-    public static string RunMergeProcess(BuildRequest req, KeySet libHacKeySet, IProgress<(int pct, string label)> progress, Action<string, LogLevel> log, CancellationToken ct = default)
+    public static string RunMergeProcess(BuildRequest req, KeySet libHacKeySet, bool verify, IProgress<(int pct, string label)> progress, Action<string, LogLevel> log, CancellationToken ct = default)
     {
-        var builder = new PartitionFileSystemBuilder();
         var disposables = new List<IDisposable>();
-        var tempFiles = new List<string>();
+        var converters = new Dictionary<string, NcaToNczConverter>(StringComparer.OrdinalIgnoreCase);
         string? finalPath = null;
         bool isCompleted = false;
-
         var fileRegistry = new Dictionary<string, (string Path, string EntryName, string Ext)>(StringComparer.OrdinalIgnoreCase);
+        var fsCache = new Dictionary<string, IFileSystem>(StringComparer.OrdinalIgnoreCase);
 
         try
         {
             var allPaths = GetAllPaths(req);
 
             var allMetaCache = allPaths
-                .SelectMany(p => Utils.GetMetadataFromContainer(libHacKeySet, p))
+                .SelectMany(p => Core.Utils.GetMetadataFromContainer(libHacKeySet, p))
                 .ToList();
+
+            var ncaIdToMeta = allMetaCache
+                .Where(m => m.ContentNcaIds != null)
+                .SelectMany(m => m.ContentNcaIds!.Select(id => (id, m)))
+                .GroupBy(x => x.id, StringComparer.OrdinalIgnoreCase)
+                .ToDictionary(g => g.Key, g => g.First().m, StringComparer.OrdinalIgnoreCase);
 
             log?.Invoke(Res.Log_MergeStart, LogLevel.Info);
 
             foreach (var path in allPaths)
             {
                 ct.ThrowIfCancellationRequested();
-                using var storage = new LocalStorage(path, FileAccess.Read);
+
+                var storage = new LocalStorage(path, FileAccess.Read);
+                disposables.Add(storage);
+
                 IFileSystem fs;
                 string ext = Path.GetExtension(path).ToLower();
                 if (ext is ".xci" or ".xcz")
@@ -206,6 +215,8 @@ public static class NspMergeService
                     pfs.Initialize(storage).ThrowIfFailure();
                     fs = pfs;
                 }
+                disposables.Add(fs);
+                fsCache[path] = fs;
 
                 foreach (var entry in fs.EnumerateEntries("/", "*.tik"))
                 {
@@ -213,10 +224,7 @@ public static class NspMergeService
                     if (fs.OpenFile(ref tikFile.Ref, entry.FullPath.ToU8Span(), OpenMode.Read).IsSuccess())
                     {
                         var ticket = new Ticket(tikFile.Get.AsStream());
-
-                        byte[] rightsIdBytes = ticket.RightsId;
-                        var rightsId = new RightsId(rightsIdBytes);
-
+                        var rightsId = new RightsId(ticket.RightsId);
                         if (!libHacKeySet.ExternalKeySet.Contains(rightsId))
                             libHacKeySet.ExternalKeySet.Add(rightsId, new LibHac.Spl.AccessKey(ticket.GetTitleKey(libHacKeySet)));
                     }
@@ -227,25 +235,19 @@ public static class NspMergeService
                     string entryName = entry.Name.ToString();
                     string entryExt = Path.GetExtension(entryName).ToLowerInvariant();
 
-                    if (req.AllowedNcaIds != null)
+                    if (req.AllowedNcaIds != null && entryExt is ".nca" or ".ncz")
                     {
-                        if (entryExt is ".nca" or ".ncz")
-                        {
-                            string ncaId = ExtractNcaId(entryName);
-                            if (!string.IsNullOrEmpty(ncaId) && !req.AllowedNcaIds.Contains(ncaId)) continue;
-                        }
+                        string ncaId = ExtractNcaId(entryName);
+                        if (!string.IsNullOrEmpty(ncaId) && !req.AllowedNcaIds.Contains(ncaId)) continue;
                     }
 
                     string finalName = entryExt == ".ncz" ? Path.ChangeExtension(entryName, ".nca") : entryName;
-
-                    if (!fileRegistry.TryGetValue(finalName, out (string Path, string EntryName, string Ext) value) || value.Ext == ".ncz" && entryExt == ".nca")
-                    {
-                        value = (path, entryName, entryExt);
-                        fileRegistry[finalName] = value;
-                    }
+                    if (!fileRegistry.TryGetValue(finalName, out var value) || (value.Ext == ".ncz" && entryExt == ".nca"))
+                        fileRegistry[finalName] = (path, entryName, entryExt);
                 }
             }
 
+            var fileEntries = new List<(string Name, Action<Stream, Action<long>> Writer, long EstimatedSize, string Label)>();
             var addedFileNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
             foreach (var kvp in fileRegistry)
@@ -253,108 +255,143 @@ public static class NspMergeService
                 ct.ThrowIfCancellationRequested();
                 var (sourcePath, entryName, originalExt) = kvp.Value;
 
-                var storage = new LocalStorage(sourcePath, FileAccess.Read);
-                disposables.Add(storage);
+                if (!fsCache.TryGetValue(sourcePath, out var fs)) continue;
 
-                IFileSystem fs;
-                string ext = Path.GetExtension(sourcePath).ToLower();
-                if (ext is ".xci" or ".xcz")
-                {
-                    var xci = new Xci(libHacKeySet, storage);
-                    fs = xci.OpenPartition(XciPartitionType.Secure);
-                }
-                else
-                {
-                    var pfs = new PartitionFileSystem();
-                    pfs.Initialize(storage).ThrowIfFailure();
-                    fs = pfs;
-                }
-                disposables.Add(fs);
+                var fileRef = new UniqueRef<IFile>();
+                if (!fs.OpenFile(ref fileRef.Ref, ("/" + entryName).ToU8Span(), OpenMode.Read).IsSuccess()) continue;
 
-                var file = new UniqueRef<IFile>();
+                fileRef.Get.GetSize(out long size).ThrowIfFailure();
+                if (size == 0) { fileRef.Destroy(); continue; }
 
-                if (!fs.OpenFile(ref file.Ref, ("/" + entryName).ToU8Span(), OpenMode.Read).IsSuccess()) continue;
-
-                file.Get.GetSize(out long size).ThrowIfFailure();
-                if (size == 0) { file.Destroy(); continue; }
-
-                IFile rawFile = file.Release();
+                IFile rawFile = fileRef.Release();
                 disposables.Add(rawFile);
                 IStorage currentStorage = new FileStorage(rawFile);
                 disposables.Add(currentStorage);
 
                 if (originalExt is not (".nca" or ".ncz"))
                 {
-                    if (addedFileNames.Add(kvp.Key))
-                        builder.AddFile(kvp.Key, currentStorage.AsFile(OpenMode.Read));
+                    if (!addedFileNames.Add(kvp.Key)) continue;
+                    var capturedStorage = currentStorage;
+                    fileEntries.Add((kvp.Key, (s, onRead) => CopyStream(capturedStorage.AsStream(), s, ct, onRead), size, kvp.Key));
                     continue;
                 }
 
                 var nca = new Nca(libHacKeySet, currentStorage);
                 string tid = nca.Header.TitleId.ToString("X16");
-                var metaInfo = allMetaCache.FirstOrDefault(m => m.ContentNcaIds?.Contains(ExtractNcaId(entryName)) == true);
-                string contentMetaType = metaInfo != null ? Utils.GetContentMetaTypeTag(metaInfo.Type) : "Unknown";
+
+                ncaIdToMeta.TryGetValue(ExtractNcaId(entryName), out var metaInfo);
+
+                string typeTag = metaInfo != null ? Core.Utils.GetContentMetaTypeTag(metaInfo.Type) : "Unknown";
                 string ncaContentType = nca.Header.ContentType.ToString();
-                string displayText = originalExt == ".ncz" ? Res.Log_DecompressAndMerge : Res.Log_Merging;
-
-                log?.Invoke($"   └ [{tid}] [{contentMetaType}] [{ncaContentType}] {displayText}", LogLevel.Info);
-
-                string finalName = entryName;
+                string titleName = !string.IsNullOrEmpty(metaInfo?.KrTitle) ? metaInfo.KrTitle
+                                 : !string.IsNullOrEmpty(metaInfo?.EnTitle) ? metaInfo.EnTitle
+                                 : tid;
 
                 if (originalExt == ".ncz")
                 {
-                    var ncz = new Ncz(libHacKeySet, currentStorage.AsStream(), NczReadMode.Original);
-                    currentStorage = ncz.BaseStorage;
-                    finalName = Path.ChangeExtension(entryName, ".nca");
-                }
-                else if (originalExt == ".nca" && req.CompressToNcz)
-                {
-                    if (nca.Header.ContentType is NcaContentType.Program or NcaContentType.PublicData)
+                    if (req.CompressToNcz)
                     {
-                        string tempPath = Path.Combine(req.OutputDir, $"{Guid.NewGuid()}.tmp");
-                        var fsTemp = File.Open(tempPath, FileMode.Create, FileAccess.ReadWrite);
-                        NcaToNczConverter.Convert(currentStorage.AsStream(), fsTemp, libHacKeySet, req.NczCompressionLevel);
-                        fsTemp.Position = 0;
-                        currentStorage = fsTemp.AsStorage();
-                        disposables.Add(fsTemp);
-                        tempFiles.Add(tempPath);
-                        finalName = Path.ChangeExtension(entryName, ".ncz");
+                        if (!addedFileNames.Add(kvp.Key)) continue;
+                        string finalName = entryName;
+                        log?.Invoke($"   └ [{tid}] [{typeTag}] [{ncaContentType}] {Res.Log_Merging}", LogLevel.Info);
+                        var capturedStorage = currentStorage;
+                        string label = $"{titleName} [{typeTag}] [{ncaContentType}] {Res.Log_Merging}";
+                        fileEntries.Add((finalName, (s, onRead) => CopyStream(capturedStorage.AsStream(), s, ct, onRead), size, label));
                     }
+                    else
+                    {
+                        if (!addedFileNames.Add(kvp.Key)) continue;
+                        string finalName = Path.ChangeExtension(entryName, ".nca");
+                        log?.Invoke($"   └ [{tid}] [{typeTag}] [{ncaContentType}] {Res.Log_DecompressAndMerge}", LogLevel.Info);
+                        var ncz = new Ncz(libHacKeySet, currentStorage.AsStream(), NczReadMode.Original);
+                        var decStorage = ncz.BaseStorage;
+                        decStorage.GetSize(out long decSize).ThrowIfFailure();
+                        string label = $"{titleName} [{typeTag}] [{ncaContentType}] {Res.Log_DecompressAndMerge}";
+                        fileEntries.Add((finalName, (s, onRead) => CopyStream(decStorage.AsStream(), s, ct, onRead), decSize, label));
+                    }
+                    continue;
                 }
 
-                if (!addedFileNames.Add(finalName)) continue;
-                builder.AddFile(finalName, currentStorage.AsFile(OpenMode.Read));
+                if (req.CompressToNcz && nca.Header.ContentType is NcaContentType.Program or NcaContentType.PublicData)
+                {
+                    string finalName = Path.ChangeExtension(entryName, ".ncz");
+                    if (!addedFileNames.Add(finalName)) continue;
+
+                    log?.Invoke($"   └ [{tid}] [{typeTag}] [{ncaContentType}] {Res.Log_CompressAndMerge}", LogLevel.Info);
+                    var capturedStorage = currentStorage;
+                    string label = $"{titleName} [{typeTag}] [{ncaContentType}] {Res.Log_CompressAndMerge}";
+                    string capturedName = entryName;
+                    var converter = new NcaToNczConverter(libHacKeySet);
+                    converters[capturedName] = converter;
+
+                    fileEntries.Add((finalName, (s, onRead) =>
+                    {
+                        converter.Convert(capturedStorage.AsStream(), s, req.NczCompressionLevel, false, onRead, ct);
+                    }, size, label));
+                }
+                else
+                {
+                    if (!addedFileNames.Add(entryName)) continue;
+
+                    log?.Invoke($"   └ [{tid}] [{typeTag}] [{ncaContentType}] {Res.Log_Merging}", LogLevel.Info);
+                    var capturedStorage = currentStorage;
+                    string label = $"{titleName} [{typeTag}] [{ncaContentType}] {Res.Log_Merging}";
+
+                    fileEntries.Add((entryName, (s, onRead) => CopyStream(capturedStorage.AsStream(), s, ct, onRead), size, label));
+                }
             }
 
             var meta = req.ResolvedMeta ?? ExtractFinalMetadata(libHacKeySet, allPaths, req.TargetBaseTitleId);
             log?.Invoke(string.Format(Res.Log_FinalId, meta.TitleId, meta.DisplayVersion), LogLevel.Ok);
 
-            string finalFileName = NspFileNameBuilder.Build("Merged", meta.KrTitle, meta.EnTitle, meta.TitleId, meta.DisplayVersion, meta.TitleVersion, meta.DlcCount);
+            string finalFileName = NspNameBuilder.FileNameBuild("Merged", meta.KrTitle, meta.EnTitle, meta.TitleId, meta.DisplayVersion, meta.TitleVersion, meta.DlcCount, req.CompressToNcz);
             finalPath = Path.Combine(req.OutputDir, finalFileName);
 
-            using var nspStorage = builder.Build(PartitionFileSystemType.Standard);
-            using var fout = File.Open(finalPath, FileMode.Create, FileAccess.Write);
-
-            nspStorage.GetSize(out long totalSize).ThrowIfFailure();
-            using var nspStream = nspStorage.AsStream();
-
-            byte[] buffer = new byte[0x800000];
-            long totalRead = 0;
-
-            while (totalRead < totalSize)
+            while (allPaths.Any(p => string.Equals(p, finalPath, StringComparison.OrdinalIgnoreCase)) || File.Exists(finalPath))
             {
-                ct.ThrowIfCancellationRequested();
-                int toRead = (int)Math.Min(buffer.Length, totalSize - totalRead);
-                int read = nspStream.Read(buffer, 0, toRead);
-                if (read <= 0) break;
-
-                fout.Write(buffer, 0, read);
-                totalRead += read;
-
-                var (pct, label, _, _) = Utils.CalculateProgress(totalRead, totalSize, finalFileName);
-                progress?.Report((pct, label));
+                string nameWithoutExt = Path.GetFileNameWithoutExtension(finalPath);
+                string ext = Path.GetExtension(finalPath);
+                finalPath = Path.Combine(req.OutputDir, nameWithoutExt + "_" + ext);
             }
-            fout.Flush();
+
+            string displayName = NspNameBuilder.DisplayNameBuild(meta.EnTitle, meta.TitleId, meta.DisplayVersion, meta.DlcCount, req.CompressToNcz);
+            using var fout = File.Open(finalPath, FileMode.Create, FileAccess.ReadWrite);
+            Pfs0Builder.BuildStreaming(displayName, fileEntries, fout, progress, ct);
+
+            if (req.CompressToNcz && converters.Count > 0 && verify)
+            {
+                log?.Invoke(Res.Log_ValidationStart, LogLevel.Info);
+                fout.Position = 0;
+                var verifyPfs = new PartitionFileSystem();
+                verifyPfs.Initialize(fout.AsStorage()).ThrowIfFailure();
+
+                var nczEntries = verifyPfs.EnumerateEntries("/", "*.ncz")
+                    .Where(e => converters.ContainsKey(Path.ChangeExtension(e.Name, ".nca")))
+                    .ToList();
+
+                long totalVerifySize = nczEntries.Sum(e => e.Size);
+                long currentVerifyPos = 0;
+
+                foreach (var entry in nczEntries)
+                {
+                    ct.ThrowIfCancellationRequested();
+                    string origName = Path.ChangeExtension(entry.Name, ".nca");
+                    if (!converters.TryGetValue(origName, out var converter)) continue;
+
+                    using var nczFile = new UniqueRef<IFile>();
+                    verifyPfs.OpenFile(ref nczFile.Ref, entry.FullPath.ToU8Span(), OpenMode.Read).ThrowIfFailure();
+
+                    ncaIdToMeta.TryGetValue(ExtractNcaId(entry.Name), out var nczMetaInfo);
+                    string nczTypeTag = nczMetaInfo != null ? Core.Utils.GetContentMetaTypeTag(nczMetaInfo.Type) : "Unknown";
+                    string label = $"{(nczMetaInfo?.KrTitle ?? nczMetaInfo?.EnTitle ?? entry.Name)} [{nczTypeTag}]";
+
+                    log?.Invoke($"   └ {label} {Res.Log_StatusVerifying}", LogLevel.Info);
+                    converter.Verify(nczFile.Get.AsStream(), totalVerifySize, ref currentVerifyPos, label, progress, ct);
+                    log?.Invoke($"   └ {label} OK", LogLevel.Ok);
+                }
+                log?.Invoke(Res.Log_ValidationComplete, LogLevel.Ok);
+            }
+
             isCompleted = true;
             log?.Invoke(string.Format(Res.Log_MergeComplete, finalFileName), LogLevel.Ok);
             return finalPath;
@@ -367,18 +404,32 @@ public static class NspMergeService
         finally
         {
             for (int i = disposables.Count - 1; i >= 0; i--) disposables[i]?.Dispose();
-            foreach (var temp in tempFiles)
-                if (File.Exists(temp)) try { File.Delete(temp); } catch { }
 
             if (!isCompleted && !string.IsNullOrEmpty(finalPath) && File.Exists(finalPath))
             {
-                try
-                {
-                    File.Delete(finalPath);
-                    log?.Invoke(Res.Log_DeleteIncompleteFile, LogLevel.Info);
-                }
-                catch {}
+                try { File.Delete(finalPath); log?.Invoke(Res.Log_DeleteIncompleteFile, LogLevel.Info); }
+                catch { }
             }
+        }
+    }
+
+    private static void CopyStream(Stream src, Stream dst, CancellationToken ct, Action<long>? onRead = null)
+    {
+        const int bufferSize = 81920;
+        byte[] buf = ArrayPool<byte>.Shared.Rent(bufferSize);
+        try
+        {
+            int read;
+            while ((read = src.Read(buf, 0, bufferSize)) > 0)
+            {
+                ct.ThrowIfCancellationRequested();
+                dst.Write(buf, 0, read);
+                onRead?.Invoke(read);
+            }
+        }
+        finally
+        {
+            ArrayPool<byte>.Shared.Return(buf);
         }
     }
 
@@ -410,7 +461,7 @@ public static class NspMergeService
     private static MetadataResult ExtractFinalMetadata(KeySet ks, List<string> paths, string? targetBaseTitleId = null)
     {
         var allMetas = paths
-            .SelectMany(p => Utils.GetMetadataFromContainer(ks, p))
+            .SelectMany(p => Core.Utils.GetMetadataFromContainer(ks, p))
             .GroupBy(m => new { m.TitleId, m.TitleVersion, m.Type })
             .Select(g => g.First())
             .ToList();
@@ -436,7 +487,6 @@ public static class NspMergeService
             .FirstOrDefault();
 
         var baseGame = allMetas.FirstOrDefault(m => m.Type == ContentMetaType.Application) ?? allMetas.First();
-
         var versionSource = latestPatch ?? baseGame;
 
         return new MetadataResult(baseGame.TitleId, versionSource.TitleVersion, versionSource.DisplayVersion, baseGame.KrTitle, baseGame.EnTitle, dlcCount, ContentMetaType.Application);

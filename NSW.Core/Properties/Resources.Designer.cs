@@ -19,7 +19,7 @@ namespace NSW.Core.Properties {
     // 클래스에서 자동으로 생성되었습니다.
     // 멤버를 추가하거나 제거하려면 .ResX 파일을 편집한 다음 /str 옵션을 사용하여 ResGen을
     // 다시 실행하거나 VS 프로젝트를 다시 빌드하십시오.
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "17.0.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "18.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     public class Resources {
@@ -88,11 +88,56 @@ namespace NSW.Core.Properties {
         }
         
         /// <summary>
+        ///   Start Compression과(와) 유사한 지역화된 문자열을 찾습니다.
+        /// </summary>
+        public static string Button_StartCompress {
+            get {
+                return ResourceManager.GetString("Button_StartCompress", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Start Decompression과(와) 유사한 지역화된 문자열을 찾습니다.
+        /// </summary>
+        public static string Button_StartDecompress {
+            get {
+                return ResourceManager.GetString("Button_StartDecompress", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Verify과(와) 유사한 지역화된 문자열을 찾습니다.
+        /// </summary>
+        public static string Button_Verify {
+            get {
+                return ResourceManager.GetString("Button_Verify", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Select Game File과(와) 유사한 지역화된 문자열을 찾습니다.
         /// </summary>
         public static string Dialog_SelectGameFile {
             get {
                 return ResourceManager.GetString("Dialog_SelectGameFile", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   No files to compress.과(와) 유사한 지역화된 문자열을 찾습니다.
+        /// </summary>
+        public static string Error_NoCompressFiles {
+            get {
+                return ResourceManager.GetString("Error_NoCompressFiles", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   No files to decompress.과(와) 유사한 지역화된 문자열을 찾습니다.
+        /// </summary>
+        public static string Error_NoDecompressFiles {
+            get {
+                return ResourceManager.GetString("Error_NoDecompressFiles", resourceCulture);
             }
         }
         
@@ -187,6 +232,15 @@ namespace NSW.Core.Properties {
         }
         
         /// <summary>
+        ///   Compression과(와) 유사한 지역화된 문자열을 찾습니다.
+        /// </summary>
+        public static string Label_Compression {
+            get {
+                return ResourceManager.GetString("Label_Compression", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Output Path과(와) 유사한 지역화된 문자열을 찾습니다.
         /// </summary>
         public static string Label_OutputPath {
@@ -214,11 +268,29 @@ namespace NSW.Core.Properties {
         }
         
         /// <summary>
+        ///     [Compress &amp; Merge]과(와) 유사한 지역화된 문자열을 찾습니다.
+        /// </summary>
+        public static string Log_CompressAndMerge {
+            get {
+                return ResourceManager.GetString("Log_CompressAndMerge", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///     [Compression Complete] {0}과(와) 유사한 지역화된 문자열을 찾습니다.
         /// </summary>
         public static string Log_CompressionDone {
             get {
                 return ResourceManager.GetString("Log_CompressionDone", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Compression ratio과(와) 유사한 지역화된 문자열을 찾습니다.
+        /// </summary>
+        public static string Log_CompressionRatio {
+            get {
+                return ResourceManager.GetString("Log_CompressionRatio", resourceCulture);
             }
         }
         
@@ -286,11 +358,47 @@ namespace NSW.Core.Properties {
         }
         
         /// <summary>
-        ///   Merging과(와) 유사한 지역화된 문자열을 찾습니다.
+        ///   Merging...과(와) 유사한 지역화된 문자열을 찾습니다.
         /// </summary>
         public static string Log_Merging {
             get {
                 return ResourceManager.GetString("Log_Merging", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Compress과(와) 유사한 지역화된 문자열을 찾습니다.
+        /// </summary>
+        public static string Log_ModeCompress {
+            get {
+                return ResourceManager.GetString("Log_ModeCompress", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Decompress과(와) 유사한 지역화된 문자열을 찾습니다.
+        /// </summary>
+        public static string Log_ModeDecompress {
+            get {
+                return ResourceManager.GetString("Log_ModeDecompress", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Error processing과(와) 유사한 지역화된 문자열을 찾습니다.
+        /// </summary>
+        public static string Log_ProcessError {
+            get {
+                return ResourceManager.GetString("Log_ProcessError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Start과(와) 유사한 지역화된 문자열을 찾습니다.
+        /// </summary>
+        public static string Log_ProcessStart {
+            get {
+                return ResourceManager.GetString("Log_ProcessStart", resourceCulture);
             }
         }
         
@@ -349,6 +457,51 @@ namespace NSW.Core.Properties {
         }
         
         /// <summary>
+        ///   Compressing...과(와) 유사한 지역화된 문자열을 찾습니다.
+        /// </summary>
+        public static string Log_StatusCompressing {
+            get {
+                return ResourceManager.GetString("Log_StatusCompressing", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Copying...과(와) 유사한 지역화된 문자열을 찾습니다.
+        /// </summary>
+        public static string Log_StatusCopying {
+            get {
+                return ResourceManager.GetString("Log_StatusCopying", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Decompressing...과(와) 유사한 지역화된 문자열을 찾습니다.
+        /// </summary>
+        public static string Log_StatusDecompressing {
+            get {
+                return ResourceManager.GetString("Log_StatusDecompressing", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Done과(와) 유사한 지역화된 문자열을 찾습니다.
+        /// </summary>
+        public static string Log_StatusDone {
+            get {
+                return ResourceManager.GetString("Log_StatusDone", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Verifying...과(와) 유사한 지역화된 문자열을 찾습니다.
+        /// </summary>
+        public static string Log_StatusVerifying {
+            get {
+                return ResourceManager.GetString("Log_StatusVerifying", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   {0} title groups detected과(와) 유사한 지역화된 문자열을 찾습니다.
         /// </summary>
         public static string Log_TitleGroupDetected {
@@ -358,11 +511,47 @@ namespace NSW.Core.Properties {
         }
         
         /// <summary>
+        ///   Validating...과(와) 유사한 지역화된 문자열을 찾습니다.
+        /// </summary>
+        public static string Log_Validating {
+            get {
+                return ResourceManager.GetString("Log_Validating", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Validation complete과(와) 유사한 지역화된 문자열을 찾습니다.
+        /// </summary>
+        public static string Log_ValidationComplete {
+            get {
+                return ResourceManager.GetString("Log_ValidationComplete", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Validation starting과(와) 유사한 지역화된 문자열을 찾습니다.
+        /// </summary>
+        public static string Log_ValidationStart {
+            get {
+                return ResourceManager.GetString("Log_ValidationStart", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Failed to write NSP: {0}과(와) 유사한 지역화된 문자열을 찾습니다.
         /// </summary>
         public static string Log_WriteNspFailed {
             get {
                 return ResourceManager.GetString("Log_WriteNspFailed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   NSW Compression Tool과(와) 유사한 지역화된 문자열을 찾습니다.
+        /// </summary>
+        public static string Main_CompressTitle {
+            get {
+                return ResourceManager.GetString("Main_CompressTitle", resourceCulture);
             }
         }
         
@@ -460,8 +649,7 @@ namespace NSW.Core.Properties {
         }
         
         /// <summary>
-        ///   Done!
-        ///{0}과(와) 유사한 지역화된 문자열을 찾습니다.
+        ///   Done! {0}과(와) 유사한 지역화된 문자열을 찾습니다.
         /// </summary>
         public static string Main_Msg_Done {
             get {
@@ -605,6 +793,33 @@ namespace NSW.Core.Properties {
         }
         
         /// <summary>
+        ///   Compress to NSZ when checked (merge only)과(와) 유사한 지역화된 문자열을 찾습니다.
+        /// </summary>
+        public static string ToolTip_Compress {
+            get {
+                return ResourceManager.GetString("ToolTip_Compress", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   3: Fastest | 9: Balanced | 18: Recommended | 22: Maximum compression과(와) 유사한 지역화된 문자열을 찾습니다.
+        /// </summary>
+        public static string ToolTip_CompressLevel {
+            get {
+                return ResourceManager.GetString("ToolTip_CompressLevel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Open Output Folder과(와) 유사한 지역화된 문자열을 찾습니다.
+        /// </summary>
+        public static string ToolTip_OpenWorkSpace {
+            get {
+                return ResourceManager.GetString("ToolTip_OpenWorkSpace", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Remove All Items과(와) 유사한 지역화된 문자열을 찾습니다.
         /// </summary>
         public static string ToolTip_RemoveAll {
@@ -619,6 +834,15 @@ namespace NSW.Core.Properties {
         public static string ToolTip_RemoveSelected {
             get {
                 return ResourceManager.GetString("ToolTip_RemoveSelected", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Runs an additional verification after compression과(와) 유사한 지역화된 문자열을 찾습니다.
+        /// </summary>
+        public static string ToolTip_VerifyCompress {
+            get {
+                return ResourceManager.GetString("ToolTip_VerifyCompress", resourceCulture);
             }
         }
     }
